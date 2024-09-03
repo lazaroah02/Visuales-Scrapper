@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
-from utils import center_window
-from Series_Scrapper_Page import Series_Scrapper_Page
+from utils.utils import center_window
+from pages.Series_Scrapper_Page import Series_Scrapper_Page
 
 class Main():
     def __init__(self):

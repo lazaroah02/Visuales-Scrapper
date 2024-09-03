@@ -1,8 +1,8 @@
 import requests 
 from bs4 import BeautifulSoup
 from urllib.parse import unquote
-from constants import ALLOWED_FORMATS
-from utils import check_if_html_is_valid_to_get_media_links
+from utils.constants import ALLOWED_FORMATS
+from utils.utils import check_if_html_is_valid_to_get_media_links
 
 #function that take a html code  and extract the links of the episodes inside
 def get_links_of_html(html):

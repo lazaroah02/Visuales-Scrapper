@@ -2,7 +2,7 @@ import threading
 from tkinter import *
 from tkinter import messagebox, filedialog
 from tkinter import ttk
-import scrapping
+import functionalities.scrapping as scrapping
 from requests import RequestException
 
 class Series_Scrapper_Page(ttk.Frame):

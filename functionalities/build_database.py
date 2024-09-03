@@ -3,9 +3,9 @@ from bs4 import BeautifulSoup
 import requests
 import json
 import concurrent.futures
-from scrapping import get_links_of_html
-from constants import FILE_EXTENSIONS
-from utils import format_key_name
+from functionalities.scrapping import get_links_of_html
+from utils.constants import FILE_EXTENSIONS
+from utils.utils import format_key_name
 
 def build_database(parent_folder_url):
     time.sleep(5)
