@@ -1,9 +1,8 @@
 import requests 
 from bs4 import BeautifulSoup
-from urllib.parse import unquote, urljoin
-
-#formatos aceptados para las descarga de archivos
-ALLOWED_FORMATS = ["avi", "srt", "mkv", "mp4", "mpg"] 
+from urllib.parse import unquote
+from constants import ALLOWED_FORMATS
+from utils import check_if_html_is_valid_to_get_media_links
 
 #function that take a html code  and extract the links of the episodes inside
 def get_links_of_html(html):
@@ -31,7 +30,7 @@ def scrapping(URL_SERIE, CARPETA_DESTINO):
         res = requests.get(f"{URL_SERIE}{link}") 
         #compruebo que sea una carpeta que contenga una temporada
         try:
-            if res.headers['content-type'] == 'text/html;charset=UTF-8':
+            if check_if_html_is_valid_to_get_media_links(res.headers['content-type']):
                 # extraigo los links de los capitulos
                 content_links = get_links_of_html(str(res.content)) 
                 #abro el archivo donde se guardaran los links
