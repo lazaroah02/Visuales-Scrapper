@@ -1,5 +1,5 @@
 import os
-
+from urllib.parse import unquote
 
 def center_window(ancho,alto,raiz):
     x_ventana = raiz.winfo_screenwidth() // 2 - ancho // 2
@@ -12,7 +12,7 @@ def check_if_html_is_valid_to_get_media_links(header):
     return header == 'text/html;charset=UTF-8' or header == 'text/html;charset=utf-8' or header == 'text/html; charset=UTF-8' or header == 'text/html; charset=utf-8'
 
 def format_key_name(key):
-    return key.replace("%20", " ").replace("/", "").replace("%28", "(").replace("%29", ")")
+    return unquote(key.replace("/",""))
 
 def clean_folder(folder):
     #remove all files from a folder
@@ -20,3 +20,4 @@ def clean_folder(folder):
             file_path = os.path.join(folder, file)
             if os.path.isfile(file_path):
                 os.remove(file_path)
+              
