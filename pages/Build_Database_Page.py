@@ -1,8 +1,6 @@
 import json
 import threading
-from tkinter import Entry, Button, Label
-from tkinter import messagebox, filedialog
-from tkinter import ttk
+from tkinter import Entry, Button, Label, Text, messagebox, filedialog, ttk, END
 from functionalities.build_database import build_database
 from requests import RequestException
 
@@ -46,17 +44,22 @@ class BuildDatabasePage(ttk.Frame):
         # Button to start generating the database
         self.button = Button(self, text="Generar Base de Datos", command=self.start_generating_database)
         self.button.config()
-        self.button.place(x=180, y=260)
+        self.button.place(x=10, y=240)
 
         # Label to show the loading status
         self.label_loading = Label(self, text="Generando Base de Datos")
-        self.label_loading.config(fg="blue", font=("Cabin", 15,), width=25)
+        self.label_loading.config(fg="blue", font=("Cabin", 15,), width=20)
 
-        self.x_coordenate_of_loading_points = 320
+        self.x_coordenate_of_loading_points = 375
         self.after_function_id = None
         self.loading_points = Label(self, text=". . .")
         self.loading_points.config(fg="blue", font=("Courier", 15, "italic"))
-                                
+        
+        #show log textarea
+        self.text_area_log = Text(self)
+        self.text_area_log.config(width = 60, height = 11)
+        self.text_area_log.place(x = 8, y = 280)
+                                        
     def seleccionar_ruta_destino(self):
         """Open a dialog to select the destination folder and update the input field."""
         self.input_ruta_destino.delete(0, "end")
@@ -84,7 +87,7 @@ class BuildDatabasePage(ttk.Frame):
         self.disable_buttons()
         self.show_loading_status()
         try:
-            data = build_database(url_carpeta_visuales)
+            data = build_database(url_carpeta_visuales, self.log_callback_function)
             with open(f"{ruta_destino}/{nombre_db}.json", "w") as file:
                 json.dump(data, file) 
             if data != {}:
@@ -118,12 +121,12 @@ class BuildDatabasePage(ttk.Frame):
     
     def show_loading_status(self, frame=0):
         """Show the loading status with an animated effect."""
-        if self.loading_points.winfo_x() >= 340:
+        if self.loading_points.winfo_x() >= 390:
             self.loading_points.place(x=self.x_coordenate_of_loading_points)
             frame = 0
         # Update the position of the loading point
-        self.label_loading.place(x=60, y=350)     
-        self.loading_points.place(x=(self.x_coordenate_of_loading_points + frame), y=355)
+        self.label_loading.place(x=150, y=235)     
+        self.loading_points.place(x=(self.x_coordenate_of_loading_points + frame), y=240)
         # Schedule the next frame to be displayed after 250 milliseconds
         self.after_function_id = self.root.after(250, self.show_loading_status, frame + 5)
     
@@ -132,3 +135,8 @@ class BuildDatabasePage(ttk.Frame):
         self.root.after_cancel(self.after_function_id)
         self.label_loading.place_forget()    
         self.loading_points.place_forget()
+    
+    def log_callback_function(self, log):
+        '''function to show a log in the log textarea'''
+        self.text_area_log.insert(END, f"•{log}\n \n")
+        self.text_area_log.see("end")    

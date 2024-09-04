@@ -160,5 +160,4 @@ class SearchPage(ttk.Frame):
     
     def show_searching_result(self, result):
         """Show searching result in database"""
-        self.textarea_search_result.delete(1.0, END)
-                 
+        self.textarea_search_result.delete(1.0, END)         

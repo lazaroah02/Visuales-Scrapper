@@ -6,7 +6,7 @@ from functionalities.scrapping import get_links_of_html
 from utils.constants import FILE_EXTENSIONS
 from utils.utils import format_key_name
 
-def build_database(parent_folder_url):
+def build_database(parent_folder_url, log_calback_function):
     """
     Build a database by recursively scraping links from a parent folder URL.
 
@@ -23,6 +23,8 @@ def build_database(parent_folder_url):
     # Ensure the URL ends with a slash
     if not parent_folder_url.endswith("/"):
         parent_folder_url += "/"
+    
+    log_calback_function(f"Scrapping: {parent_folder_url}")    
 
     # Fetch the HTML content of the parent folder URL
     res = requests.get(parent_folder_url)
@@ -45,7 +47,7 @@ def build_database(parent_folder_url):
 
     # Use ThreadPoolExecutor to scrape links concurrently
     with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
-        future_to_link = {executor.submit(build_database, parent_folder_url + link): format_key_name(link) for link in links}
+        future_to_link = {executor.submit(build_database, parent_folder_url + link, log_calback_function): format_key_name(link) for link in links}
         results = {future_to_link[future]: future.result() for future in concurrent.futures.as_completed(future_to_link)}
 
     return results
