@@ -6,3 +6,5 @@ FILE_EXTENSIONS = [
             '.zip', '.rar', '.7z', '.tar', '.gz', '.bmp', '.tiff', '.wav', '.aac', 
             '.ogg', '.m4a', '.webm', '.html', '.htm', '.exe', '.dll', '.iso', '.bin', 'nfo'
         ]
+
+DATABASE_DIRECTORY = "./remembered_database"
