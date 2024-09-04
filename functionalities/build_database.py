@@ -26,28 +26,38 @@ def build_database(parent_folder_url, log_calback_function):
     
     log_calback_function(f"Scrapping: {parent_folder_url}")    
 
-    # Fetch the HTML content of the parent folder URL
-    res = requests.get(parent_folder_url)
-    
-    # Get media links from the HTML content
-    media_links = get_links_of_html(str(res.content))
-    if media_links:
-        return [parent_folder_url + link for link in media_links]
+    try:
+        # Fetch the HTML content of the parent folder URL
+        res = requests.get(parent_folder_url)
+        
+        # Get media links from the HTML content
+        media_links = get_links_of_html(str(res.content))
+        if media_links:
+            return [parent_folder_url + link for link in media_links]
 
-    # Parse the HTML content using BeautifulSoup
-    soup = BeautifulSoup(res.content, features="lxml")
-    tags = soup("a")
-    links = []
-    
-    # Extract links from the HTML content, excluding media files
-    for tag in tags[5:len(tags)]:
-        link = tag.get('href')
-        if link and not any(link.endswith(ext) or link.endswith(ext.upper()) for ext in FILE_EXTENSIONS):
-            links.append(link)
+        # Parse the HTML content using BeautifulSoup
+        soup = BeautifulSoup(res.content, features="lxml")
+        tags = soup("a")
+        links = []
+        
+        # Extract links from the HTML content, excluding media files
+        for tag in tags[5:len(tags)]:
+            link = tag.get('href')
+            if link and not any(link.endswith(ext) or link.endswith(ext.upper()) for ext in FILE_EXTENSIONS):
+                links.append(link)
 
-    # Use ThreadPoolExecutor to scrape links concurrently
-    with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
-        future_to_link = {executor.submit(build_database, parent_folder_url + link, log_calback_function): format_key_name(link) for link in links}
-        results = {future_to_link[future]: future.result() for future in concurrent.futures.as_completed(future_to_link)}
+        # Use ThreadPoolExecutor to scrape links concurrently
+        with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
+            future_to_link = {
+                executor.submit(
+                    build_database, 
+                    parent_folder_url + link, 
+                    log_calback_function): 
+                        format_key_name(link) for link in links
+                }
+            results = {future_to_link[future]: future.result() for future in concurrent.futures.as_completed(future_to_link)}
 
-    return results
+        return results
+    except Exception as e:
+        log_calback_function(f"Error scrapping: {parent_folder_url} || {e}")
+        return "Error Getting this folder info"

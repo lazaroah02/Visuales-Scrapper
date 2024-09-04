@@ -98,12 +98,9 @@ class BuildDatabasePage(ttk.Frame):
                     "Se genero una base de datos vacía. Si estas segur@ de que la carpeta tiene contenido revisa el link"
                 )   
                 self.button.config(text="Reintentar")
-       
-        except RequestException:
-            messagebox.showinfo("!", "Herror de conexion, revisa tu conexion a internet o el link de descarga")   
-            self.button.config(text="Reintentar")
-        except Exception:
-            messagebox.showinfo("!", "Herror al construir la base de datos")   
+        except Exception as e:
+            messagebox.showinfo("!", "Herror al construir la base de datos") 
+            self.log_callback_function(f"Herror al construir la base de datos: {e}")  
             self.button.config(text="Reintentar")
         finally:
             self.enable_buttons()
