@@ -2,6 +2,7 @@ import json
 import os
 import threading
 from tkinter import Entry, Button, Label, Text, Checkbutton, IntVar, ttk, messagebox, filedialog, END
+from urllib.parse import unquote
 from functionalities.search import find_all_matches_in_dict
 from utils.utils import clean_folder
 from utils.constants import DATABASE_DIRECTORY
@@ -11,6 +12,9 @@ class SearchPage(ttk.Frame):
         super().__init__(parent, *args, **kwargs)
         self.parent = parent
         self.root = root
+        
+        #variable to save the search results
+        self.search_results = {}
         
         #variable to save if the user wants to remember the database or not
         self.remember_database = IntVar(value=1)
@@ -43,8 +47,6 @@ class SearchPage(ttk.Frame):
 
         # Button to start generating the database
         self.button_search = Button(self, text="Buscar", command=self.start_searching)
-        self.button_search.config()
-        self.button_search.config()
         self.button_search.place(x=10, y=165)
 
         # Label to show the loading status
@@ -60,6 +62,10 @@ class SearchPage(ttk.Frame):
         self.textarea_search_result = Text(self)
         self.textarea_search_result.config(width = 59, height = 14)
         self.textarea_search_result.place(x = 10, y = 200)
+        
+        # Button to export searching results
+        self.button_export_searching_results = Button(self, text="Exportar", command=self.export_searching_results)
+        self.button_export_searching_results.place(x=10, y=440)
         
         self.recovery_remembered_database()
         self.bind('<Return>', self.start_searching)
@@ -96,12 +102,13 @@ class SearchPage(ttk.Frame):
         with open(database_path, "r") as file:
             database_data = json.load(file) 
         try:
-            result = find_all_matches_in_dict(database_data, search_value) 
-            if result != {}:
-                self.show_searching_result(result)
-                messagebox.showinfo("!","Operacion finalizada con éxito")
-            else:
+            results = find_all_matches_in_dict(database_data, search_value) 
+            self.search_results = results
+            if results == {}:
                 messagebox.showinfo("!", "No se encontraron coincidencias")       
+            else:
+                self.show_searching_result(results)
+                messagebox.showinfo("!","Operacion finalizada con éxito")
          
         except Exception as e:
             messagebox.showinfo("!", "Herror al realizar la busqueda: " + str(e))   
@@ -158,6 +165,28 @@ class SearchPage(ttk.Frame):
                 self.input_database_path.insert(0, ruta_bd)
                 self.input_database_path.config(state = "disabled")
     
-    def show_searching_result(self, result):
-        """Show searching result in database"""
-        self.textarea_search_result.delete(1.0, END)         
+    def show_searching_result(self, results):
+        self.textarea_search_result.delete(1.0, END)  # Limpiar el contenido del Text
+        for show, seasons in results.items():
+            self.textarea_search_result.insert(END, f"{show}\n")
+            for season, links in seasons.items():
+                self.textarea_search_result.insert(END, f"  -- {season}\n")
+                for link in links:
+                    self.textarea_search_result.insert(END, f"       •{link}\n")
+            self.textarea_search_result.insert(END, "\n")  # Espacio entre shows    
+    
+    def export_searching_results(self):    
+        if self.search_results == {}:
+            return messagebox.showinfo("!", "No hay nada que exportar")    
+        destiny_folder = filedialog.askdirectory()
+        for show, seasons in self.search_results.items():
+            parent_folder = os.path.join(destiny_folder, show)
+            os.mkdir(parent_folder)
+            for season, links in seasons.items():
+                season_path = os.path.join(parent_folder, season)
+                os.mkdir(season_path)
+                file = open(f"{season_path}/links.txt", "w", encoding="utf-8")
+                # Save the media links to the file
+                for link in links:
+                    file.write(f"{link}\n")
+        messagebox.showinfo("!", "Exportación Exitosa")            

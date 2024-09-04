@@ -3,20 +3,42 @@ def find_all_matches_in_dict(dictionary, key):
 
     Args:
         dictionary (_dict_): _Dictionary where to search for matches_
-        key (_string_): _Key to sarch in the dictionary_
+        key (_string_): _Key to search in the dictionary_
 
     Returns:
         _list_: _List of matches in dictionary_
     """
-    results = []
+    results = {}
     
     def search(dictionary, key):
         for k, v in dictionary.items():
             if key in k:
-                results.append(dictionary[k])
+                results[k] = v
         for k, v in dictionary.items():
             if isinstance(v, dict):
                 search(v, key)
     
     search(dictionary, key)
-    return results
+    return clean_results(results)
+
+def clean_results(results):
+    existing_keys = []
+    cleaned_result = {}
+        
+    def clean_repeated_keys(dictionary, parent_dict):
+        for k, v in dictionary.items():
+            #if the key is already stored don't add it to the new result
+            if k in existing_keys:
+                continue
+            else:
+                #if the key is not stored, add it
+                existing_keys.append(k)    
+                if isinstance(v, dict):
+                    parent_dict[k] = clean_repeated_keys(v, v)
+                else: 
+                    parent_dict[k] = v    
+        return parent_dict            
+    
+    clean_repeated_keys(results, cleaned_result) 
+    return cleaned_result
+       

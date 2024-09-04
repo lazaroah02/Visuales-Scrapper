@@ -11,6 +11,7 @@ class Main():
         self.root = tk.Tk()
         self.root.title("Visuales Scrapper")
         self.root.geometry(center_window(500, 500, self.root))
+        self.root.resizable(0, 0)
 
         # Tabs control
         self.tabControl = ttk.Notebook(self.root)
