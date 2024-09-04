@@ -164,29 +164,89 @@ class SearchPage(ttk.Frame):
                 self.input_database_path.delete(0, "end")
                 self.input_database_path.insert(0, ruta_bd)
                 self.input_database_path.config(state = "disabled")
-    
+
     def show_searching_result(self, results):
-        self.textarea_search_result.delete(1.0, END)  # Limpiar el contenido del Text
+        """
+        Show the searching results on the log textarea for user to visualize if the output is correct.
+
+        Args:
+            results (dict): A dictionary where the keys are show names and the values are seasons or links.
+        
+        Note: results Structure: results is a dict that may have other dicts inside,
+            that's why the validation of the structure to iterate if it is a list or a dict.
+            Example:
+            {
+                "Iron Man": ["link_movie", "link_subtitle"],
+                "Aida": {
+                    "temp1": ["cap1_link", "cap2_link"],
+                    "temp2": ["cap1_link", "cap2_link"],
+                }
+            }
+        """
+        self.textarea_search_result.delete(1.0, END)
+        
         for show, seasons in results.items():
             self.textarea_search_result.insert(END, f"{show}\n")
-            for season, links in seasons.items():
-                self.textarea_search_result.insert(END, f"  -- {season}\n")
-                for link in links:
-                    self.textarea_search_result.insert(END, f"       •{link}\n")
-            self.textarea_search_result.insert(END, "\n")  # Espacio entre shows    
-    
-    def export_searching_results(self):    
-        if self.search_results == {}:
-            return messagebox.showinfo("!", "No hay nada que exportar")    
-        destiny_folder = filedialog.askdirectory()
+            
+            if isinstance(seasons, dict):
+                for season, links in seasons.items():
+                    self.textarea_search_result.insert(END, f"  -- {season}\n")
+                    for link in links:
+                        self.textarea_search_result.insert(END, f"       • {link}\n")
+            elif isinstance(seasons, list):
+                for link in seasons:
+                    self.textarea_search_result.insert(END, f"   • {link}\n")
+            else:
+                self.textarea_search_result.insert(END, f"   • {seasons}\n")
+            
+            self.textarea_search_result.insert(END, "\n")
+
+    def export_searching_results(self):
+        """
+        Export the searching results to the desired folder.
+
+        If there are no search results, show an information message.
+
+        Args:
+            None
+        
+        Note: self.search_results Structure: self.search_results is a dict that may have other dicts inside,
+            that's why the validation of the structure to iterate if it is a list or a dict.
+            Example:
+            {
+                "Iron Man": ["link_movie", "link_subtitle"],
+                "Aida": {
+                    "temp1": ["cap1_link", "cap2_link"],
+                    "temp2": ["cap1_link", "cap2_link"],
+                }
+            }
+        """
+        if not self.search_results:
+            return messagebox.showinfo("!", "No hay nada que exportar")
+        
+        carpeta_destino = filedialog.askdirectory()
+        if not carpeta_destino:
+            return
+        
         for show, seasons in self.search_results.items():
-            parent_folder = os.path.join(destiny_folder, show)
-            os.mkdir(parent_folder)
-            for season, links in seasons.items():
-                season_path = os.path.join(parent_folder, season)
-                os.mkdir(season_path)
-                file = open(f"{season_path}/links.txt", "w", encoding="utf-8")
-                # Save the media links to the file
-                for link in links:
-                    file.write(f"{link}\n")
-        messagebox.showinfo("!", "Exportación Exitosa")            
+            carpeta_programa = os.path.join(carpeta_destino, show)
+            
+            # Check if the folder already exists and add suffix if necessary
+            if os.path.exists(carpeta_programa):
+                carpeta_programa += " (descargar visuales)"
+            
+            os.makedirs(carpeta_programa, exist_ok=True)
+            
+            if isinstance(seasons, dict):
+                for season, links in seasons.items():
+                    carpeta_temporada = os.path.join(carpeta_programa, season)
+                    os.makedirs(carpeta_temporada, exist_ok=True)
+                    with open(f"{carpeta_temporada}/enlaces.txt", "w", encoding="utf-8") as file:
+                        for link in links:
+                            file.write(f"{link}\n")
+            elif isinstance(seasons, list):
+                with open(f"{carpeta_programa}/enlaces.txt", "w", encoding="utf-8") as file:
+                    for link in seasons:
+                        file.write(f"{link}\n")
+        
+        messagebox.showinfo("!", "Exportación Exitosa")
