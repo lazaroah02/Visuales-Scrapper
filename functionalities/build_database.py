@@ -28,7 +28,7 @@ def build_database(parent_folder_url, log_calback_function):
 
     try:
         # Fetch the HTML content of the parent folder URL
-        res = requests.get(parent_folder_url)
+        res = requests.get(parent_folder_url, verify=False)
         
         # Get media links from the HTML content
         media_links = get_links_of_html(str(res.content))
