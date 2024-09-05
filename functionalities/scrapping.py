@@ -2,7 +2,7 @@ import requests
 from bs4 import BeautifulSoup
 from urllib.parse import unquote
 from utils.constants import ALLOWED_FORMATS
-from utils.utils import check_if_html_is_valid_to_get_media_links
+from utils.utils import check_if_html_is_valid_to_get_media_links, format_key_name
 
 def get_links_of_html(html):
     """
@@ -25,7 +25,7 @@ def get_links_of_html(html):
             links.append(link)
     return links 
 
-def scrapping(URL_SERIE, CARPETA_DESTINO, verify = True):
+def scrapping(URL_SERIE, verify = True):
     """
     Scrape all links contained in the series folder and save them to files.
 
@@ -33,6 +33,12 @@ def scrapping(URL_SERIE, CARPETA_DESTINO, verify = True):
         URL_SERIE (str): The URL of the series folder.
         CARPETA_DESTINO (str): The destination folder path to save the links.
     """
+    if not str(URL_SERIE).endswith("/"):
+        URL_SERIE += "/"
+        
+    serie_name = format_key_name(str(URL_SERIE).split('/')[-2])
+    scrapping_result = {serie_name:{}}
+    
     # Get all links contained in the series folder
     serie = requests.get(URL_SERIE, verify = verify)
     soup = BeautifulSoup(serie.content, features="lxml")
@@ -40,24 +46,27 @@ def scrapping(URL_SERIE, CARPETA_DESTINO, verify = True):
     links = []
     for tag in tags[5:len(tags)]:
         links.append(tag.get('href'))
-
+    
+    #iterate all the seasons
     for link in links:
+        temp_name = format_key_name(link)
+        scrapping_result[serie_name][temp_name] = []
         res = requests.get(f"{URL_SERIE}{link}") 
         # Check if it is a folder containing a season
         try:
             if check_if_html_is_valid_to_get_media_links(res.headers['content-type']):
                 # Extract links of the episodes
                 content_links = get_links_of_html(str(res.content)) 
-                # Open the file to save the links
-                nombre_archivo = unquote(link[0:len(link) - 1])
-                file = open(f"{CARPETA_DESTINO}/{nombre_archivo}.txt", "w", encoding="utf-8")
-                # Save the episode links to the file
+                # add the episode links to the result
                 for content in content_links:
-                    file.write(f"{res.url}{content}\n") 
-        except:
-            continue            
+                    scrapping_result[serie_name][temp_name].append(f"{res.url}{content}")
+        except Exception as e:
+            continue  
+    
+    return scrapping_result              
+    
                 
-def get_one_temp(URL_TEMP, CARPETA_DESTINO, verify = True):
+def get_one_temp(URL_TEMP, verify = True):
     """
     Get the links of one season and save them to a file.
 
@@ -65,11 +74,16 @@ def get_one_temp(URL_TEMP, CARPETA_DESTINO, verify = True):
         URL_TEMP (str): The URL of the season.
         CARPETA_DESTINO (str): The destination folder path to save the links.
     """
+    if not str(URL_TEMP).endswith("/"):
+        URL_TEMP += "/"
+    
+    temp_name = format_key_name(str(URL_TEMP).split('/')[-2])
+    scrapping_result = {temp_name: []}
+    
     html_temp = requests.get(URL_TEMP, verify=verify).content 
     content_links = get_links_of_html(str(html_temp)) 
-    # Open the file to save the links
-    nombre_archivo = str(unquote(URL_TEMP)).split("/")[-1]
-    file = open(f"{CARPETA_DESTINO}/{nombre_archivo}.txt", "w", encoding="utf-8")
-    # Save the episode links to the file
+    # add the episode links to the result
     for content in content_links:
-        file.write(f"{URL_TEMP}/{content}\n")
+        scrapping_result[temp_name].append(f"{URL_TEMP}/{content}")
+    
+    return scrapping_result    

@@ -1,7 +1,11 @@
+import os
+import subprocess
 import threading
 from tkinter import Checkbutton, Entry, Button, Label, IntVar, messagebox, filedialog, ttk
 import functionalities.scrapping as scrapping
 from requests import RequestException
+
+from utils.utils import recovery_idm_path, update_idm_path
 
 class SeriesScrapperPage(ttk.Frame):
     def __init__(self, parent, root, *args, **kwargs):
@@ -18,6 +22,9 @@ class SeriesScrapperPage(ttk.Frame):
         
         #variable to store if use https verification or not
         self.use_https_verification = IntVar(value=1)
+        
+        #variable to save the scrapping results
+        self.scrapping_results = {}
 
         # Label for input URL of the series
         self.label_url_serie = Label(self, text="URL de la serie")
@@ -28,22 +35,9 @@ class SeriesScrapperPage(ttk.Frame):
         self.input_url_serie.config(width=50)
         self.input_url_serie.place(x=100, y=20)
         
-        #checkbox remember database
+        #checkbox check https certificate
         self.checkbox_use_https_verification = Checkbutton(self, variable=self.use_https_verification, text="Usar verificación https", onvalue=1, offvalue=0)
         self.checkbox_use_https_verification.place(x=6, y=50)
-
-        # Label for destination folder
-        self.label_ruta_destino = Label(self, text="Ruta de destino")
-        self.label_ruta_destino.place(x=10, y=90)
-
-        # Input for the destination folder path
-        self.input_ruta_destino = Entry(self)
-        self.input_ruta_destino.config(width=50)
-        self.input_ruta_destino.place(x=100, y=90)
-
-        # Button to select the destination folder path
-        self.button_select_ruta = Button(self, text="Seleccionar", command=self.seleccionar_ruta_destino)
-        self.button_select_ruta.place(x=420, y=85)
 
         self.type_of_scrapping = {
             "none": "Tipo de Scrapping",
@@ -71,6 +65,14 @@ class SeriesScrapperPage(ttk.Frame):
         self.after_function_id = None
         self.loading_points = Label(self, text=". . .")
         self.loading_points.config(fg="blue", font=("Courier", 15, "italic"))
+        
+        # Button to export searching results as files
+        self.button_export_searching_results_as_files = Button(self, text="Exportar como archivos", command=self.start_exporting_as_files)
+        self.button_export_searching_results_as_files.place(x=120, y=300)
+        
+        # Button to export searching results to idm
+        self.button_export_searching_results_to_idm = Button(self, text="Exportar a IDM", command=self.start_exporting_to_idm)
+        self.button_export_searching_results_to_idm.place(x=10, y=300)
                         
     def seleccionar_ruta_destino(self):
         """Open a dialog to select the destination folder and update the input field."""
@@ -81,49 +83,48 @@ class SeriesScrapperPage(ttk.Frame):
     def iniciar_scrapping(self):
         """Start the scraping process based on the selected type of scrapping."""
         url_serie = self.input_url_serie.get()
-        ruta_destino = self.input_ruta_destino.get()
         type_of_scrapping = self.box_serie_or_temp.get()
         
         # Check that no field is empty
-        if url_serie == "" or ruta_destino == "":
+        if url_serie == "":
             messagebox.showinfo("!","No pueden haber campos vacios")
         elif type_of_scrapping == self.type_of_scrapping["none"]:    
             messagebox.showinfo("!","Selecciona un tipo de Scrapping")
         else:
             # If the user wants to download a full series
             if type_of_scrapping == self.type_of_scrapping["serie"]:
-                t = threading.Thread(target=self.scrapping_serie, args=[url_serie, ruta_destino])
+                t = threading.Thread(target=self.scrapping_serie, args=[url_serie])
                 t.start()   
             # If the user wants to download only one season
             else:
-                t = threading.Thread(target=self.scrapping_one_temp, args=[url_serie, ruta_destino])
+                t = threading.Thread(target=self.scrapping_one_temp, args=[url_serie])
                 t.start() 
     
-    def scrapping_serie(self, url_serie, ruta_destino):
+    def scrapping_serie(self, url_serie):
         """Get the links of a full series, including all seasons."""
         self.disable_buttons()
         self.show_loading_status()
         try:
-            scrapping.scrapping(url_serie, ruta_destino, verify = self.use_https_verification.get() == 1)
+            self.scrapping_results = scrapping.scrapping(url_serie, verify = self.use_https_verification.get() == 1)
             messagebox.showinfo("!","Operacion finalizada con éxito")
             self.enable_buttons()
         except RequestException:
             messagebox.showinfo("!", "Herror de conexion, revisa tu conexion a internet o el link de descarga")   
             self.button.config(text="Reintentar")
             self.enable_buttons()
-        except Exception:
-            messagebox.showinfo("!", "Herror al obtener los links")   
+        except Exception as e:
+            messagebox.showinfo("!", "Herror al obtener los links") 
             self.button.config(text="Reintentar")
             self.enable_buttons()  
         finally:
             self.hide_loading_status()      
     
-    def scrapping_one_temp(self, url_serie, ruta_destino):
+    def scrapping_one_temp(self, url_serie):
         """Get the links of one season of the series."""
         self.disable_buttons()
         self.show_loading_status()
         try:
-            scrapping.get_one_temp(url_serie, ruta_destino, verify = self.use_https_verification.get() == 1)
+            self.scrapping_results = scrapping.get_one_temp(url_serie, verify = self.use_https_verification.get() == 1)
             messagebox.showinfo("!","Operacion finalizada con éxito")
             self.enable_buttons()            
         except RequestException:
@@ -140,12 +141,10 @@ class SeriesScrapperPage(ttk.Frame):
     def enable_buttons(self):
         """Enable the buttons in the UI."""
         self.button.config(state="normal")
-        self.button_select_ruta.config(state="normal")
         
     def disable_buttons(self):
         """Disable the buttons in the UI."""
         self.button.config(state="disabled")
-        self.button_select_ruta.config(state="disabled")
     
     def show_loading_status(self, frame=0):
         """Show the loading status with an animated effect."""
@@ -163,3 +162,158 @@ class SeriesScrapperPage(ttk.Frame):
         self.root.after_cancel(self.after_function_id)
         self.label_loading.place_forget()    
         self.loading_points.place_forget()
+
+    def export_searching_results_as_files(self):
+        """
+        Export the searching results to the desired folder.
+
+        If there are no search results, show an information message.
+
+        Args:
+            None
+        
+        Note: self.search_results Structure: self.search_results is a dict that may have other dicts inside,
+            that's why the validation of the structure to iterate if it is a list or a dict.
+            Example:
+            {
+                "Iron Man": ["link_movie", "link_subtitle"],
+                "Aida": {
+                    "temp1": ["cap1_link", "cap2_link"],
+                    "temp2": ["cap1_link", "cap2_link"],
+                }
+            }
+        """
+        """
+        url = "http://localhost:8080/Aida/01/Aida%20-%201x01%20-%20Una%20Vida%20Nueva%20.avi" 
+        download_path = "D:/"  # Carpeta de destino
+        idm_path = "C:\\Program Files (x86)\\Internet Download Manager\\IDMan.exe"
+        subprocess.run([idm_path, '/d', url, '/p', download_path, '/n', '/a'])
+        """
+        try:
+            if not self.scrapping_results:
+                return messagebox.showinfo("!", "No hay nada que exportar")
+            
+            self.label_loading.config(text="Exportando")
+            self.disable_buttons()
+            self.show_loading_status()
+            
+            carpeta_destino = filedialog.askdirectory(title="Donde desea guardar el contenido")
+            if not carpeta_destino:
+                return
+            
+            for show, seasons in self.scrapping_results.items():
+                carpeta_programa = os.path.join(carpeta_destino, show)
+                
+                # Check if the folder already exists and add suffix if necessary
+                if os.path.exists(carpeta_programa):
+                    carpeta_programa += " (descargar visuales)"
+                
+                os.makedirs(carpeta_programa, exist_ok=True)
+                
+                if isinstance(seasons, dict):
+                    for season, links in seasons.items():
+                        carpeta_temporada = os.path.join(carpeta_programa, season)
+                        os.makedirs(carpeta_temporada, exist_ok=True)
+                        with open(f"{carpeta_temporada}/enlaces.txt", "w", encoding="utf-8") as file:
+                            for link in links:
+                                file.write(f"{link}\n")
+                elif isinstance(seasons, list):
+                    with open(f"{carpeta_programa}/enlaces.txt", "w", encoding="utf-8") as file:
+                        for link in seasons:
+                            file.write(f"{link}\n")
+                else:
+                    messagebox.showinfo("!Error", "Error al exportar")             
+            
+            messagebox.showinfo("!", "Exportación Exitosa")
+        except Exception:
+            messagebox.showinfo("!Error", "Error al exportar")    
+        finally:    
+            self.label_loading.config(text="Buscando")
+            self.hide_loading_status()
+            self.enable_buttons()
+
+    def export_searching_results_to_idm(self):
+        """
+        Export the searching results to idm for downloading.
+
+        If there are no search results, show an information message.
+
+        Args:
+            None
+        
+        Note: self.search_results Structure: self.search_results is a dict that may have other dicts inside,
+            that's why the validation of the structure to iterate if it is a list or a dict.
+            Example:
+            {
+                "Iron Man": ["link_movie", "link_subtitle"],
+                "Aida": {
+                    "temp1": ["cap1_link", "cap2_link"],
+                    "temp2": ["cap1_link", "cap2_link"],
+                }
+            }
+        """
+        try:
+            idm_path = recovery_idm_path()
+            
+            # check if IDM is correctly installed and exists in the provided folder. Otherwise ask user for the new IDM location
+            if not os.path.isfile(idm_path):
+                choice = messagebox.askyesno(
+                    "IDM no encontrado", 
+                    "IDM no está instalado o la ruta de IDM indicada no es correcta. ¿Quieres seleccionar una nueva ruta?"
+                    )
+                if not choice:
+                    return
+                
+                new_idm_path = filedialog.askopenfilename(title="Selecciona IDMan.exe", filetypes=[("IDMan.exe", "IDMan.exe")])
+                if new_idm_path and os.path.isfile(new_idm_path):
+                    messagebox.showinfo("!", "Ruta de IDM actualizada correctamente. Continuaremos con la exportación.")
+                    idm_path = new_idm_path
+                    update_idm_path(new_idm_path)
+                else:
+                    return messagebox.showinfo("Error", "No se seleccionó una ruta válida para IDM. Pruebe exportar como archivo")    
+            
+            if not self.scrapping_results:
+                return messagebox.showinfo("!", "No hay nada que exportar")
+            
+            self.label_loading.config(text="Exportando")
+            self.disable_buttons()
+            self.show_loading_status()
+            
+            carpeta_destino = filedialog.askdirectory(title="Donde desea guardar el contenido")
+            if not carpeta_destino:
+                return
+            
+            for show, seasons in self.scrapping_results.items():
+                carpeta_programa = os.path.join(carpeta_destino, show)
+                
+                # Check if the folder already exists and add suffix if necessary
+                if os.path.exists(carpeta_programa):
+                    carpeta_programa += " (descarga automatica con IDM)"
+                
+                os.makedirs(carpeta_programa, exist_ok=True)
+                
+                if isinstance(seasons, dict):
+                    for season, links in seasons.items():
+                        carpeta_temporada = os.path.join(carpeta_programa, season)
+                        os.makedirs(carpeta_temporada, exist_ok=True)
+                        for link in links:
+                            subprocess.run([idm_path, '/d', link, '/p', carpeta_temporada, '/n', '/a'])
+                elif isinstance(seasons, list):
+                    for link in seasons:
+                        subprocess.run([idm_path, '/d', link, '/p', carpeta_programa, '/n', '/a'])
+                else:
+                    messagebox.showinfo("!Error", "Error al exportar")           
+            
+            messagebox.showinfo("!", "Exportación Exitosa")
+        except Exception:
+            messagebox.showinfo("!Error", "Error al exportar")    
+        finally:    
+            self.label_loading.config(text="Buscando")
+            self.hide_loading_status()
+            self.enable_buttons()
+    
+    def start_exporting_to_idm(self):
+        threading.Thread(target=self.export_searching_results_to_idm).start()
+    
+    def start_exporting_as_files(self):    
+        threading.Thread(target=self.export_searching_results_as_files).start()

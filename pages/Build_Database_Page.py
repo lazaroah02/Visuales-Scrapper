@@ -21,7 +21,7 @@ class BuildDatabasePage(ttk.Frame):
         self.input_url_carpeta_visuales.config(width=79)
         self.input_url_carpeta_visuales.place(x=10, y=50)
         
-        #checkbox remember database
+        #checkbox check https certificate
         self.checkbox_use_https_verification = Checkbutton(self, variable=self.use_https_verification, text="Usar verificación https", onvalue=1, offvalue=0)
         self.checkbox_use_https_verification.place(x=5, y=70)
 
