@@ -75,7 +75,13 @@ class SearchPage(ttk.Frame):
         """Open a dialog to select the database"""
         self.input_database_path.config(state = "normal")
         self.input_database_path.delete(0, "end")
-        path = str(filedialog.askopenfilename(parent = self.root, title='Seleccionar base de datos .json', filetypes=[("Json File","*.json")]))
+        path = str(
+            filedialog.askopenfilename(
+                parent = self.root, 
+                title='Seleccionar base de datos .json', 
+                filetypes=[("Json File","*.json")],
+                initialdir = "D:\\Projects\\Visuales Scrapper\\databases"
+                ))
         self.input_database_path.insert(0, path)
         self.input_database_path.config(state = "disabled")
         
