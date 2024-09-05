@@ -20,4 +20,17 @@ def clean_folder(folder):
             file_path = os.path.join(folder, file)
             if os.path.isfile(file_path):
                 os.remove(file_path)
+
+def recovery_idm_path():
+    with open("./idm_path.txt", "r") as idm_path_file:
+        # Read the first line and delete the blank spaces
+        idm_path = idm_path_file.readline().strip()  
+        print(idm_path)
+        return idm_path      
+
+def update_idm_path(new_path):
+    with open("./idm_path.txt", "w") as idm_path_file:
+        idm_path_file.write(new_path + "\n")
+
+                      
               
