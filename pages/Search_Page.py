@@ -305,11 +305,6 @@ class SearchPage(ttk.Frame):
                 }
             }
         """
-        """
-        url = "http://localhost:8080/Aida/01/Aida%20-%201x01%20-%20Una%20Vida%20Nueva%20.avi" 
-        download_path = "D:/"  # Carpeta de destino
-        subprocess.run([idm_path, '/d', url, '/p', download_path, '/n', '/a'])
-        """
         try:
             idm_path = recovery_idm_path()
             
