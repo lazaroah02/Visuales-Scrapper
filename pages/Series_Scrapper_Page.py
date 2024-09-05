@@ -1,7 +1,7 @@
 import os
 import subprocess
 import threading
-from tkinter import Checkbutton, Entry, Button, Label, IntVar, messagebox, filedialog, ttk
+from tkinter import END, Checkbutton, Entry, Button, Label, IntVar, Text, messagebox, filedialog, ttk
 import functionalities.scrapping as scrapping
 from requests import RequestException
 
@@ -32,7 +32,7 @@ class SeriesScrapperPage(ttk.Frame):
 
         # Input for the series URL
         self.input_url_serie = Entry(self)
-        self.input_url_serie.config(width=50)
+        self.input_url_serie.config(width=63)
         self.input_url_serie.place(x=100, y=20)
         
         #checkbox check https certificate
@@ -49,16 +49,16 @@ class SeriesScrapperPage(ttk.Frame):
         self.box_serie_or_temp = ttk.Combobox(self, text="Tipo de Scrapping", state="readonly",
                                               values=[self.type_of_scrapping["serie"], self.type_of_scrapping["temp"]])
         self.box_serie_or_temp.set(self.type_of_scrapping["none"])
-        self.box_serie_or_temp.config(width=30)
-        self.box_serie_or_temp.place(x=15, y=150)
+        self.box_serie_or_temp.config(width=75)
+        self.box_serie_or_temp.place(x=10, y=100)
 
         # Button to start scraping for a series
         self.button = Button(self, text="Iniciar Scrapping", command=self.iniciar_scrapping)
         self.button.config()
-        self.button.place(x=230, y=148)
+        self.button.place(x=10, y=148)
 
         # Label to show the loading status
-        self.label_loading = Label(self, text="Cargando")
+        self.label_loading = Label(self, text="Procesando")
         self.label_loading.config(fg="blue", font=("Cabin", 15,), width=10)
 
         self.x_coordenate_of_loading_points = 240
@@ -66,19 +66,18 @@ class SeriesScrapperPage(ttk.Frame):
         self.loading_points = Label(self, text=". . .")
         self.loading_points.config(fg="blue", font=("Courier", 15, "italic"))
         
-        # Button to export searching results as files
-        self.button_export_searching_results_as_files = Button(self, text="Exportar como archivos", command=self.start_exporting_as_files)
-        self.button_export_searching_results_as_files.place(x=120, y=300)
+        #text to show the scrapping result
+        self.textarea_scrapping_result = Text(self)
+        self.textarea_scrapping_result.config(width = 59, height = 14)
+        self.textarea_scrapping_result.place(x = 10, y = 200)
         
-        # Button to export searching results to idm
-        self.button_export_searching_results_to_idm = Button(self, text="Exportar a IDM", command=self.start_exporting_to_idm)
-        self.button_export_searching_results_to_idm.place(x=10, y=300)
-                        
-    def seleccionar_ruta_destino(self):
-        """Open a dialog to select the destination folder and update the input field."""
-        self.input_ruta_destino.delete(0, "end")
-        path = str(filedialog.askdirectory())
-        self.input_ruta_destino.insert(0, path)
+        # Button to export scrapping results as files
+        self.button_export_scrapping_results_as_files = Button(self, text="Exportar como archivos", command=self.start_exporting_as_files)
+        self.button_export_scrapping_results_as_files.place(x=120, y=440)
+        
+        # Button to export scrapping results to idm
+        self.button_export_scrapping_results_to_idm = Button(self, text="Exportar a IDM", command=self.start_exporting_to_idm)
+        self.button_export_scrapping_results_to_idm.place(x=10, y=440)
         
     def iniciar_scrapping(self):
         """Start the scraping process based on the selected type of scrapping."""
@@ -106,6 +105,7 @@ class SeriesScrapperPage(ttk.Frame):
         self.show_loading_status()
         try:
             self.scrapping_results = scrapping.scrapping(url_serie, verify = self.use_https_verification.get() == 1)
+            self.show_scrapping_result(self.scrapping_results)
             messagebox.showinfo("!","Operacion finalizada con éxito")
             self.enable_buttons()
         except RequestException:
@@ -125,6 +125,7 @@ class SeriesScrapperPage(ttk.Frame):
         self.show_loading_status()
         try:
             self.scrapping_results = scrapping.get_one_temp(url_serie, verify = self.use_https_verification.get() == 1)
+            self.show_scrapping_result(self.scrapping_results)
             messagebox.showinfo("!","Operacion finalizada con éxito")
             self.enable_buttons()            
         except RequestException:
@@ -141,10 +142,14 @@ class SeriesScrapperPage(ttk.Frame):
     def enable_buttons(self):
         """Enable the buttons in the UI."""
         self.button.config(state="normal")
+        self.button_export_scrapping_results_as_files.config(state="normal")
+        self.button_export_scrapping_results_to_idm.config(state="normal")
         
     def disable_buttons(self):
         """Disable the buttons in the UI."""
         self.button.config(state="disabled")
+        self.button_export_scrapping_results_as_files.config(state="disabled")
+        self.button_export_scrapping_results_to_idm.config(state="disabled")
     
     def show_loading_status(self, frame=0):
         """Show the loading status with an animated effect."""
@@ -152,8 +157,8 @@ class SeriesScrapperPage(ttk.Frame):
             self.loading_points.place(x=self.x_coordenate_of_loading_points)
             frame = 0
         # Update the position of the loading point
-        self.label_loading.place(x=120, y=200)     
-        self.loading_points.place(x=(self.x_coordenate_of_loading_points + frame), y=200)
+        self.label_loading.place(x=120, y=143)     
+        self.loading_points.place(x=(self.x_coordenate_of_loading_points + frame), y=148)
         # Schedule the next frame to be displayed after 250 milliseconds
         self.after_function_id = self.root.after(250, self.show_loading_status, frame + 5)
     
@@ -163,6 +168,42 @@ class SeriesScrapperPage(ttk.Frame):
         self.label_loading.place_forget()    
         self.loading_points.place_forget()
 
+    def show_scrapping_result(self, results):
+        """
+        Show the scrapping results on the log textarea for user to visualize if the output is correct.
+
+        Args:
+            results (dict): A dictionary where the keys are show names and the values are seasons or links.
+        
+        Note: results Structure: results is a dict that may have other dicts inside,
+            that's why the validation of the structure to iterate if it is a list or a dict.
+            Example:
+            {
+                "Iron Man": ["link_movie", "link_subtitle"],
+                "Aida": {
+                    "temp1": ["cap1_link", "cap2_link"],
+                    "temp2": ["cap1_link", "cap2_link"],
+                }
+            }
+        """
+        self.textarea_scrapping_result.delete(1.0, END)
+        
+        for show, seasons in results.items():
+            self.textarea_scrapping_result.insert(END, f"{show}\n")
+            
+            if isinstance(seasons, dict):
+                for season, links in seasons.items():
+                    self.textarea_scrapping_result.insert(END, f"  -- {season}\n")
+                    for link in links:
+                        self.textarea_scrapping_result.insert(END, f"       • {link}\n")
+            elif isinstance(seasons, list):
+                for link in seasons:
+                    self.textarea_scrapping_result.insert(END, f"   • {link}\n")
+            else:
+                self.textarea_scrapping_result.insert(END, f"   • {seasons}\n")
+            
+            self.textarea_scrapping_result.insert(END, "\n")
+    
     def export_searching_results_as_files(self):
         """
         Export the searching results to the desired folder.
