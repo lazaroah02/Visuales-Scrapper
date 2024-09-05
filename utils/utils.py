@@ -25,7 +25,6 @@ def recovery_idm_path():
     with open("./idm_path.txt", "r") as idm_path_file:
         # Read the first line and delete the blank spaces
         idm_path = idm_path_file.readline().strip()  
-        print(idm_path)
         return idm_path      
 
 def update_idm_path(new_path):

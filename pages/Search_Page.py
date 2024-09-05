@@ -53,7 +53,7 @@ class SearchPage(ttk.Frame):
         self.label_loading = Label(self, text="Buscando")
         self.label_loading.config(fg="blue", font=("Cabin", 15,), width = 10)
 
-        self.x_coordenate_of_loading_points = 170
+        self.x_coordenate_of_loading_points = 180
         self.after_function_id = None
         self.loading_points = Label(self, text=". . .")
         self.loading_points.config(fg="blue", font=("Courier", 15, "italic"))
@@ -64,11 +64,11 @@ class SearchPage(ttk.Frame):
         self.textarea_search_result.place(x = 10, y = 200)
         
         # Button to export searching results as files
-        self.button_export_searching_results_as_files = Button(self, text="Exportar como archivos", command=self.export_searching_results_as_files)
+        self.button_export_searching_results_as_files = Button(self, text="Exportar como archivos", command=self.start_exporting_as_files)
         self.button_export_searching_results_as_files.place(x=120, y=440)
         
         # Button to export searching results to idm
-        self.button_export_searching_results_to_idm = Button(self, text="Exportar a IDM", command=self.export_searching_results_to_idm)
+        self.button_export_searching_results_to_idm = Button(self, text="Exportar a IDM", command=self.start_exporting_to_idm)
         self.button_export_searching_results_to_idm.place(x=10, y=440)
         
         self.recovery_remembered_database()
@@ -141,6 +141,7 @@ class SearchPage(ttk.Frame):
         self.button_export_searching_results_to_idm.config(state="disabled")
     
     def show_loading_status(self, frame=0):
+        print("aa")
         """Show the loading status with an animated effect."""
         if self.loading_points.winfo_x() >= 200:
             self.loading_points.place(x=self.x_coordenate_of_loading_points)
@@ -241,37 +242,48 @@ class SearchPage(ttk.Frame):
         idm_path = "C:\\Program Files (x86)\\Internet Download Manager\\IDMan.exe"
         subprocess.run([idm_path, '/d', url, '/p', download_path, '/n', '/a'])
         """
-        if not self.search_results:
-            return messagebox.showinfo("!", "No hay nada que exportar")
-        
-        carpeta_destino = filedialog.askdirectory(title="Donde desea guardar el contenido")
-        if not carpeta_destino:
-            return
-        
-        for show, seasons in self.search_results.items():
-            carpeta_programa = os.path.join(carpeta_destino, show)
+        try:
+            if not self.search_results:
+                return messagebox.showinfo("!", "No hay nada que exportar")
             
-            # Check if the folder already exists and add suffix if necessary
-            if os.path.exists(carpeta_programa):
-                carpeta_programa += " (descargar visuales)"
+            self.label_loading.config(text="Exportando")
+            self.disable_buttons()
+            self.show_loading_status()
             
-            os.makedirs(carpeta_programa, exist_ok=True)
+            carpeta_destino = filedialog.askdirectory(title="Donde desea guardar el contenido")
+            if not carpeta_destino:
+                return
             
-            if isinstance(seasons, dict):
-                for season, links in seasons.items():
-                    carpeta_temporada = os.path.join(carpeta_programa, season)
-                    os.makedirs(carpeta_temporada, exist_ok=True)
-                    with open(f"{carpeta_temporada}/enlaces.txt", "w", encoding="utf-8") as file:
-                        for link in links:
+            for show, seasons in self.search_results.items():
+                carpeta_programa = os.path.join(carpeta_destino, show)
+                
+                # Check if the folder already exists and add suffix if necessary
+                if os.path.exists(carpeta_programa):
+                    carpeta_programa += " (descargar visuales)"
+                
+                os.makedirs(carpeta_programa, exist_ok=True)
+                
+                if isinstance(seasons, dict):
+                    for season, links in seasons.items():
+                        carpeta_temporada = os.path.join(carpeta_programa, season)
+                        os.makedirs(carpeta_temporada, exist_ok=True)
+                        with open(f"{carpeta_temporada}/enlaces.txt", "w", encoding="utf-8") as file:
+                            for link in links:
+                                file.write(f"{link}\n")
+                elif isinstance(seasons, list):
+                    with open(f"{carpeta_programa}/enlaces.txt", "w", encoding="utf-8") as file:
+                        for link in seasons:
                             file.write(f"{link}\n")
-            elif isinstance(seasons, list):
-                with open(f"{carpeta_programa}/enlaces.txt", "w", encoding="utf-8") as file:
-                    for link in seasons:
-                        file.write(f"{link}\n")
-            else:
-                messagebox.showinfo("!Error", "Error al exportar")             
-        
-        messagebox.showinfo("!", "Exportación Exitosa")
+                else:
+                    messagebox.showinfo("!Error", "Error al exportar")             
+            
+            messagebox.showinfo("!", "Exportación Exitosa")
+        except Exception:
+            messagebox.showinfo("!Error", "Error al exportar")    
+        finally:    
+            self.label_loading.config(text="Buscando")
+            self.hide_loading_status()
+            self.enable_buttons()
 
     def export_searching_results_to_idm(self):
         """
@@ -298,51 +310,68 @@ class SearchPage(ttk.Frame):
         download_path = "D:/"  # Carpeta de destino
         subprocess.run([idm_path, '/d', url, '/p', download_path, '/n', '/a'])
         """
-        idm_path = recovery_idm_path()
-        
-        # check if IDM is correctly installed and exists in the provided folder. Otherwise ask user for the new IDM location
-        if not os.path.isfile(idm_path):
-            choice = messagebox.askyesno(
-                "IDM no encontrado", 
-                "IDM no está instalado o la ruta de IDM indicada no es correcta. ¿Quieres seleccionar una nueva ruta?"
-                )
-            if not choice:
+        try:
+            idm_path = recovery_idm_path()
+            
+            # check if IDM is correctly installed and exists in the provided folder. Otherwise ask user for the new IDM location
+            if not os.path.isfile(idm_path):
+                choice = messagebox.askyesno(
+                    "IDM no encontrado", 
+                    "IDM no está instalado o la ruta de IDM indicada no es correcta. ¿Quieres seleccionar una nueva ruta?"
+                    )
+                if not choice:
+                    return
+                
+                new_idm_path = filedialog.askopenfilename(title="Selecciona IDMan.exe", filetypes=[("IDMan.exe", "IDMan.exe")])
+                if new_idm_path and os.path.isfile(new_idm_path):
+                    messagebox.showinfo("!", "Ruta de IDM actualizada correctamente. Continuaremos con la exportación.")
+                    idm_path = new_idm_path
+                    update_idm_path(new_idm_path)
+                else:
+                    return messagebox.showinfo("Error", "No se seleccionó una ruta válida para IDM. Pruebe exportar como archivo")    
+            
+            if not self.search_results:
+                return messagebox.showinfo("!", "No hay nada que exportar")
+            
+            self.label_loading.config(text="Exportando")
+            self.disable_buttons()
+            self.show_loading_status()
+            
+            carpeta_destino = filedialog.askdirectory(title="Donde desea guardar el contenido")
+            if not carpeta_destino:
                 return
             
-            new_idm_path = filedialog.askopenfilename(title="Selecciona IDMan.exe", filetypes=[("IDMan.exe", "IDMan.exe")])
-            if new_idm_path and os.path.isfile(new_idm_path):
-                messagebox.showinfo("!", "Ruta de IDM actualizada correctamente. Continuaremos con la exportación.")
-                idm_path = new_idm_path
-                update_idm_path(new_idm_path)
-            else:
-                return messagebox.showinfo("Error", "No se seleccionó una ruta válida para IDM. Pruebe exportar como archivo")    
-        
-        if not self.search_results:
-            return messagebox.showinfo("!", "No hay nada que exportar")
-        
-        carpeta_destino = filedialog.askdirectory(title="Donde desea guardar el contenido")
-        if not carpeta_destino:
-            return
-        
-        for show, seasons in self.search_results.items():
-            carpeta_programa = os.path.join(carpeta_destino, show)
+            for show, seasons in self.search_results.items():
+                carpeta_programa = os.path.join(carpeta_destino, show)
+                
+                # Check if the folder already exists and add suffix if necessary
+                if os.path.exists(carpeta_programa):
+                    carpeta_programa += " (descarga automatica con IDM)"
+                
+                os.makedirs(carpeta_programa, exist_ok=True)
+                
+                if isinstance(seasons, dict):
+                    for season, links in seasons.items():
+                        carpeta_temporada = os.path.join(carpeta_programa, season)
+                        os.makedirs(carpeta_temporada, exist_ok=True)
+                        for link in links:
+                            subprocess.run([idm_path, '/d', link, '/p', carpeta_temporada, '/n', '/a'])
+                elif isinstance(seasons, list):
+                    for link in seasons:
+                        subprocess.run([idm_path, '/d', link, '/p', carpeta_programa, '/n', '/a'])
+                else:
+                    messagebox.showinfo("!Error", "Error al exportar")           
             
-            # Check if the folder already exists and add suffix if necessary
-            if os.path.exists(carpeta_programa):
-                carpeta_programa += " (descarga automatica con IDM)"
-            
-            os.makedirs(carpeta_programa, exist_ok=True)
-            
-            if isinstance(seasons, dict):
-                for season, links in seasons.items():
-                    carpeta_temporada = os.path.join(carpeta_programa, season)
-                    os.makedirs(carpeta_temporada, exist_ok=True)
-                    for link in links:
-                        subprocess.run([idm_path, '/d', link, '/p', carpeta_temporada, '/n', '/a'])
-            elif isinstance(seasons, list):
-                for link in seasons:
-                    subprocess.run([idm_path, '/d', link, '/p', carpeta_programa, '/n', '/a'])
-            else:
-                messagebox.showinfo("!Error", "Error al exportar")           
-        
-        messagebox.showinfo("!", "Exportación Exitosa")
+            messagebox.showinfo("!", "Exportación Exitosa")
+        except Exception:
+            messagebox.showinfo("!Error", "Error al exportar")    
+        finally:    
+            self.label_loading.config(text="Buscando")
+            self.hide_loading_status()
+            self.enable_buttons()
+    
+    def start_exporting_to_idm(self):
+        threading.Thread(target=self.export_searching_results_to_idm).start()
+    
+    def start_exporting_as_files(self):    
+        threading.Thread(target=self.export_searching_results_as_files).start()
