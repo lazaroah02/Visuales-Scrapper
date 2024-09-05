@@ -69,7 +69,7 @@ class BuildDatabasePage(ttk.Frame):
     def seleccionar_ruta_destino(self):
         """Open a dialog to select the destination folder and update the input field."""
         self.input_ruta_destino.delete(0, "end")
-        path = str(filedialog.askdirectory())
+        path = str(filedialog.askdirectory(initialdir = "D:\\Projects\\Visuales Scrapper\\databases"))
         self.input_ruta_destino.insert(0, path)
         
     def start_generating_database(self):
