@@ -1,7 +1,5 @@
 import threading
-from tkinter import Entry, Button, Label
-from tkinter import messagebox, filedialog
-from tkinter import ttk
+from tkinter import Checkbutton, Entry, Button, Label, IntVar, messagebox, filedialog, ttk
 import functionalities.scrapping as scrapping
 from requests import RequestException
 
@@ -17,6 +15,9 @@ class SeriesScrapperPage(ttk.Frame):
         super().__init__(parent, *args, **kwargs)
         self.parent = parent
         self.root = root
+        
+        #variable to store if use https verification or not
+        self.use_https_verification = IntVar(value=1)
 
         # Label for input URL of the series
         self.label_url_serie = Label(self, text="URL de la serie")
@@ -26,19 +27,23 @@ class SeriesScrapperPage(ttk.Frame):
         self.input_url_serie = Entry(self)
         self.input_url_serie.config(width=50)
         self.input_url_serie.place(x=100, y=20)
+        
+        #checkbox remember database
+        self.checkbox_use_https_verification = Checkbutton(self, variable=self.use_https_verification, text="Usar verificación https", onvalue=1, offvalue=0)
+        self.checkbox_use_https_verification.place(x=6, y=50)
 
         # Label for destination folder
         self.label_ruta_destino = Label(self, text="Ruta de destino")
-        self.label_ruta_destino.place(x=10, y=80)
+        self.label_ruta_destino.place(x=10, y=90)
 
         # Input for the destination folder path
         self.input_ruta_destino = Entry(self)
         self.input_ruta_destino.config(width=50)
-        self.input_ruta_destino.place(x=100, y=80)
+        self.input_ruta_destino.place(x=100, y=90)
 
         # Button to select the destination folder path
         self.button_select_ruta = Button(self, text="Seleccionar", command=self.seleccionar_ruta_destino)
-        self.button_select_ruta.place(x=420, y=75)
+        self.button_select_ruta.place(x=420, y=85)
 
         self.type_of_scrapping = {
             "none": "Tipo de Scrapping",
@@ -99,7 +104,7 @@ class SeriesScrapperPage(ttk.Frame):
         self.disable_buttons()
         self.show_loading_status()
         try:
-            scrapping.scrapping(url_serie, ruta_destino)
+            scrapping.scrapping(url_serie, ruta_destino, verify = self.use_https_verification.get() == 1)
             messagebox.showinfo("!","Operacion finalizada con éxito")
             self.enable_buttons()
         except RequestException:
@@ -118,7 +123,7 @@ class SeriesScrapperPage(ttk.Frame):
         self.disable_buttons()
         self.show_loading_status()
         try:
-            scrapping.get_one_temp(url_serie, ruta_destino)
+            scrapping.get_one_temp(url_serie, ruta_destino, verify = self.use_https_verification.get() == 1)
             messagebox.showinfo("!","Operacion finalizada con éxito")
             self.enable_buttons()            
         except RequestException:
