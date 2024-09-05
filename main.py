@@ -29,9 +29,9 @@ class Main():
         self.search_tab = SearchPage(self.tabControl, root=self.root)
                 
         # Add tabs to the tab control
-        self.tabControl.add(self.series_scrapper_tab, text='Series Scrapper')
-        self.tabControl.add(self.build_database_tab, text='Build Database')
         self.tabControl.add(self.search_tab, text='Search in Database')
+        self.tabControl.add(self.build_database_tab, text='Build Database')
+        self.tabControl.add(self.series_scrapper_tab, text='Series Scrapper')
 
         # Pack the tab control
         self.tabControl.pack(expand=1, fill="both")
