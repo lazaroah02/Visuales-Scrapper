@@ -1,14 +1,16 @@
 import json
 import threading
-from tkinter import Entry, Button, Label, Text, messagebox, filedialog, ttk, END
+from tkinter import Entry, Button, Label, Text, messagebox, filedialog, ttk, END, Checkbutton, IntVar
 from functionalities.build_database import build_database
-from requests import RequestException
 
 class BuildDatabasePage(ttk.Frame):
     def __init__(self, parent, root, *args, **kwargs):
         super().__init__(parent, *args, **kwargs)
         self.parent = parent
         self.root = root
+        
+        #variable to store if use https verification or not
+        self.use_https_verification = IntVar(value=1)
 
         # Label for input URL of the visuals folder
         self.label_url_carpeta_visuales = Label(self, text="URL carpeta en visuales")
@@ -18,15 +20,19 @@ class BuildDatabasePage(ttk.Frame):
         self.input_url_carpeta_visuales = Entry(self)
         self.input_url_carpeta_visuales.config(width=79)
         self.input_url_carpeta_visuales.place(x=10, y=50)
+        
+        #checkbox remember database
+        self.checkbox_use_https_verification = Checkbutton(self, variable=self.use_https_verification, text="Usar verificación https", onvalue=1, offvalue=0)
+        self.checkbox_use_https_verification.place(x=5, y=70)
 
         # Label for database name
         self.label_nombre_db = Label(self, text="Nombre de Base de datos a generar")
-        self.label_nombre_db.place(x=10, y=90)
+        self.label_nombre_db.place(x=10, y=100)
 
         # Input for the database name
         self.input_nombre_db = Entry(self)
         self.input_nombre_db.config(width=79)
-        self.input_nombre_db.place(x=10, y=120)
+        self.input_nombre_db.place(x=10, y=130)
         
         # Label for destination folder
         self.label_ruta_destino = Label(self, text="Ruta de destino")
@@ -87,7 +93,11 @@ class BuildDatabasePage(ttk.Frame):
         self.disable_buttons()
         self.show_loading_status()
         try:
-            data = build_database(url_carpeta_visuales, self.log_callback_function)
+            data = build_database(
+                url_carpeta_visuales, 
+                self.log_callback_function, 
+                verify = self.use_https_verification.get() == 1
+                )
             with open(f"{ruta_destino}/{nombre_db}.json", "w") as file:
                 json.dump(data, file) 
             if data != {}:

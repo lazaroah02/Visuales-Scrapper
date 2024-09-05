@@ -25,7 +25,7 @@ def get_links_of_html(html):
             links.append(link)
     return links 
 
-def scrapping(URL_SERIE, CARPETA_DESTINO):
+def scrapping(URL_SERIE, CARPETA_DESTINO, verify = True):
     """
     Scrape all links contained in the series folder and save them to files.
 
@@ -34,7 +34,7 @@ def scrapping(URL_SERIE, CARPETA_DESTINO):
         CARPETA_DESTINO (str): The destination folder path to save the links.
     """
     # Get all links contained in the series folder
-    serie = requests.get(URL_SERIE)
+    serie = requests.get(URL_SERIE, verify = verify)
     soup = BeautifulSoup(serie.content, features="lxml")
     tags = soup("a")
     links = []
@@ -57,7 +57,7 @@ def scrapping(URL_SERIE, CARPETA_DESTINO):
         except:
             continue            
                 
-def get_one_temp(URL_TEMP, CARPETA_DESTINO):
+def get_one_temp(URL_TEMP, CARPETA_DESTINO, verify = True):
     """
     Get the links of one season and save them to a file.
 
@@ -65,7 +65,7 @@ def get_one_temp(URL_TEMP, CARPETA_DESTINO):
         URL_TEMP (str): The URL of the season.
         CARPETA_DESTINO (str): The destination folder path to save the links.
     """
-    html_temp = requests.get(URL_TEMP).content 
+    html_temp = requests.get(URL_TEMP, verify=verify).content 
     content_links = get_links_of_html(str(html_temp)) 
     # Open the file to save the links
     nombre_archivo = str(unquote(URL_TEMP)).split("/")[-1]

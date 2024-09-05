@@ -6,7 +6,7 @@ from functionalities.scrapping import get_links_of_html
 from utils.constants import FILE_EXTENSIONS
 from utils.utils import format_key_name
 
-def build_database(parent_folder_url, log_calback_function):
+def build_database(parent_folder_url, log_calback_function, verify = True):
     """
     Build a database by recursively scraping links from a parent folder URL.
 
@@ -28,7 +28,7 @@ def build_database(parent_folder_url, log_calback_function):
 
     try:
         # Fetch the HTML content of the parent folder URL
-        res = requests.get(parent_folder_url, verify=False)
+        res = requests.get(parent_folder_url, verify=verify)
         
         # Get media links from the HTML content
         media_links = get_links_of_html(str(res.content))
