@@ -12,7 +12,7 @@ def find_all_matches_in_dict(dictionary, key):
     
     def search(dictionary, key):
         for k, v in dictionary.items():
-            if key in k:
+            if str(key).lower() in str(k).lower():
                 results[k] = v
         for k, v in dictionary.items():
             if isinstance(v, dict):
