@@ -2,7 +2,7 @@ import time
 from bs4 import BeautifulSoup
 import requests
 import concurrent.futures
-from functionalities.scrapping import get_links_of_html
+from utils.scrapping import get_links_of_html
 from utils.constants import FILE_EXTENSIONS
 from utils.utils import format_key_name
 
