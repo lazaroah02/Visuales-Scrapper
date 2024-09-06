@@ -1,11 +1,11 @@
 import tkinter as tk
-from tkinter import PhotoImage, ttk
-from tkinter import messagebox
+from tkinter import PhotoImage, ttk, messagebox
 from utils.utils import center_window
 from pages.Series_Scrapper_Page import SeriesScrapperPage
 from pages.Build_Database_Page import BuildDatabasePage
 from pages.Search_Page import SearchPage
 import os
+from utils.toast import Toast
 
 class Main():
     def __init__(self):
@@ -14,6 +14,8 @@ class Main():
         self.root.title("Visuales Scrapper")
         self.root.geometry(center_window(500, 500, self.root))
         self.root.resizable(0, 0)
+        
+        self.stop_program = False
         
         #logo
         self.absolute_folder_path = os.path.dirname(os.path.realpath(__file__))
@@ -25,9 +27,9 @@ class Main():
         self.tabControl = ttk.Notebook(self.root)
 
         # Create frames for each tab
-        self.series_scrapper_tab = SeriesScrapperPage(self.tabControl, root=self.root)
-        self.build_database_tab = BuildDatabasePage(self.tabControl, root=self.root)
-        self.search_tab = SearchPage(self.tabControl, root=self.root)
+        self.series_scrapper_tab = SeriesScrapperPage(self.tabControl, root=self.root, check_if_program_stoped = self.check_if_program_stoped)
+        self.build_database_tab = BuildDatabasePage(self.tabControl, root=self.root, check_if_program_stoped = self.check_if_program_stoped)
+        self.search_tab = SearchPage(self.tabControl, root=self.root, check_if_program_stoped = self.check_if_program_stoped)
                 
         # Add tabs to the tab control
         self.tabControl.add(self.search_tab, text='Search in Database')
@@ -45,6 +47,11 @@ class Main():
     
     def on_closing(self):
         if messagebox.askokcancel("Salir", "¿Quieres cerrar la aplicación?"):
-            self.root.destroy()     
+            self.stop_program = True
+            self.root.after(3000, self.root.destroy)
+            Toast(self.root, "Cerrando", "Cerrando programa ...")
+    
+    def check_if_program_stoped(self):
+        return self.stop_program            
 
 Main()

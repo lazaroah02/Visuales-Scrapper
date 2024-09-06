@@ -25,7 +25,7 @@ def get_links_of_html(html):
             links.append(link)
     return links 
 
-def scrapping(URL_SERIE, verify = True):
+def scrapping(URL_SERIE, check_if_stop, verify = True):
     """
     Scrape all links contained in the series folder and save them to files.
 
@@ -33,6 +33,10 @@ def scrapping(URL_SERIE, verify = True):
         URL_SERIE (str): The URL of the series folder.
         CARPETA_DESTINO (str): The destination folder path to save the links.
     """
+    
+    if check_if_stop():
+        return
+    
     if not str(URL_SERIE).endswith("/"):
         URL_SERIE += "/"
         

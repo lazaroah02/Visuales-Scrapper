@@ -17,8 +17,10 @@ def build_database(parent_folder_url, log_calback_function,  check_if_stop, veri
         dict or list: A dictionary of links if the folder contains subfolders,
                       or a list of media links if the folder contains media files.
     """
+    #check if the program stoped and stop the thread
     if check_if_stop():
-        return "Scrapping detenido por el usuario"
+        return 
+    
     # Delay to avoid overloading the server
     time.sleep(5)
     

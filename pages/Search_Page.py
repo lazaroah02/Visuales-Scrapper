@@ -8,10 +8,11 @@ from utils.utils import clean_folder, recovery_idm_path, update_idm_path
 from utils.constants import DATABASE_DIRECTORY
 
 class SearchPage(ttk.Frame):
-    def __init__(self, parent, root, *args, **kwargs):
+    def __init__(self, parent, root, check_if_program_stoped, *args, **kwargs):
         super().__init__(parent, *args, **kwargs)
         self.parent = parent
         self.root = root
+        self.check_if_program_stoped = check_if_program_stoped
         
         #variable to save the search results
         self.search_results = {}
@@ -141,8 +142,10 @@ class SearchPage(ttk.Frame):
         self.button_export_searching_results_to_idm.config(state="disabled")
     
     def show_loading_status(self, frame=0):
-        print("aa")
         """Show the loading status with an animated effect."""
+        #if the program stoped, don't show loading status
+        if self.check_if_stop():
+            return
         if self.loading_points.winfo_x() >= 200:
             self.loading_points.place(x=self.x_coordenate_of_loading_points)
             frame = 0
@@ -154,6 +157,9 @@ class SearchPage(ttk.Frame):
     
     def hide_loading_status(self):
         """Hide the loading status."""
+        #if the program stoped, don't show loading status
+        if self.check_if_stop():
+            return
         self.root.after_cancel(self.after_function_id)
         self.label_loading.place_forget()    
         self.loading_points.place_forget()
@@ -255,6 +261,9 @@ class SearchPage(ttk.Frame):
                 return
             
             for show, seasons in self.search_results.items():
+                #if the program stoped, stop the exportation
+                if self.check_if_stop():
+                    return
                 carpeta_programa = os.path.join(carpeta_destino, show)
                 
                 # Check if the folder already exists and add suffix if necessary
@@ -337,6 +346,9 @@ class SearchPage(ttk.Frame):
                 return
             
             for show, seasons in self.search_results.items():
+                #if the program stoped, stop the exportation
+                if self.check_if_stop():
+                    return
                 carpeta_programa = os.path.join(carpeta_destino, show)
                 
                 # Check if the folder already exists and add suffix if necessary
@@ -370,3 +382,7 @@ class SearchPage(ttk.Frame):
     
     def start_exporting_as_files(self):    
         threading.Thread(target=self.export_searching_results_as_files).start()
+    
+    def check_if_stop(self):
+        """Function to check if the user closed or stoped the program"""
+        return self.check_if_program_stoped()       

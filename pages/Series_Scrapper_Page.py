@@ -8,7 +8,7 @@ from requests import RequestException
 from utils.utils import recovery_idm_path, update_idm_path
 
 class SeriesScrapperPage(ttk.Frame):
-    def __init__(self, parent, root, *args, **kwargs):
+    def __init__(self, parent, root, check_if_program_stoped, *args, **kwargs):
         """
         Initialize the SeriesScrapperPage with UI elements for scraping series.
 
@@ -19,6 +19,7 @@ class SeriesScrapperPage(ttk.Frame):
         super().__init__(parent, *args, **kwargs)
         self.parent = parent
         self.root = root
+        self.check_if_program_stoped = check_if_program_stoped
         
         #variable to store if use https verification or not
         self.use_https_verification = IntVar(value=1)
@@ -107,7 +108,10 @@ class SeriesScrapperPage(ttk.Frame):
         self.disable_buttons()
         self.show_loading_status()
         try:
-            self.scrapping_results = scrapping.scrapping(url_serie, verify = self.use_https_verification.get() == 1)
+            self.scrapping_results = scrapping.scrapping(url_serie, self.check_if_stop, verify = self.use_https_verification.get() == 1)
+            #if the program stoped, don't show any message'
+            if self.check_if_stop():
+                return
             self.show_scrapping_result(self.scrapping_results)
             messagebox.showinfo("!","Operacion finalizada con éxito")
             self.enable_buttons()
@@ -128,6 +132,9 @@ class SeriesScrapperPage(ttk.Frame):
         self.show_loading_status()
         try:
             self.scrapping_results = scrapping.get_one_temp(url_serie, verify = self.use_https_verification.get() == 1)
+            #if the program stoped, don't show any message'
+            if self.check_if_stop():
+                return
             self.show_scrapping_result(self.scrapping_results)
             messagebox.showinfo("!","Operacion finalizada con éxito")
             self.enable_buttons()            
@@ -156,6 +163,9 @@ class SeriesScrapperPage(ttk.Frame):
     
     def show_loading_status(self, frame=0):
         """Show the loading status with an animated effect."""
+        #if the program stoped, don't show loading status
+        if self.check_if_stop():
+            return
         if self.loading_points.winfo_x() >= 270:
             self.loading_points.place(x=self.x_coordenate_of_loading_points)
             frame = 0
@@ -167,6 +177,9 @@ class SeriesScrapperPage(ttk.Frame):
     
     def hide_loading_status(self):
         """Hide the loading status."""
+        #if the program stoped, don't show loading status
+        if self.check_if_stop():
+            return
         self.root.after_cancel(self.after_function_id)
         self.label_loading.place_forget()    
         self.loading_points.place_forget()
@@ -246,6 +259,9 @@ class SeriesScrapperPage(ttk.Frame):
                 return
             
             for show, seasons in self.scrapping_results.items():
+                #if the program stoped, stop the exportation
+                if self.check_if_program_stoped():
+                    return
                 carpeta_programa = os.path.join(carpeta_destino, show)
                 
                 # Check if the folder already exists and add suffix if necessary
@@ -328,6 +344,9 @@ class SeriesScrapperPage(ttk.Frame):
                 return
             
             for show, seasons in self.scrapping_results.items():
+                #if the program stoped, stop the exportation
+                if self.check_if_program_stoped():
+                    return
                 carpeta_programa = os.path.join(carpeta_destino, show)
                 
                 # Check if the folder already exists and add suffix if necessary
@@ -361,3 +380,7 @@ class SeriesScrapperPage(ttk.Frame):
     
     def start_exporting_as_files(self):    
         threading.Thread(target=self.export_searching_results_as_files).start()
+    
+    def check_if_stop(self):
+        """Function to check if the user closed or stoped the program"""
+        return self.check_if_program_stoped()    

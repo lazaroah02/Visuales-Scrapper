@@ -5,10 +5,11 @@ from functionalities.build_database import build_database
 from utils.toast import Toast
 
 class BuildDatabasePage(ttk.Frame):
-    def __init__(self, parent, root, *args, **kwargs):
+    def __init__(self, parent, root, check_if_program_stoped, *args, **kwargs):
         super().__init__(parent, *args, **kwargs)
         self.parent = parent
         self.root = root
+        self.check_if_program_stoped = check_if_program_stoped
         
         #variable to store if use https verification or not
         self.use_https_verification = IntVar(value=1)
@@ -112,6 +113,9 @@ class BuildDatabasePage(ttk.Frame):
                 self.check_if_stop,
                 verify = self.use_https_verification.get() == 1
                 )
+            #if the program was stoped, don't show any message
+            if self.check_if_stop():
+                return
             with open(f"{ruta_destino}/{nombre_db}.json", "w") as file:
                 json.dump(data, file) 
             if data != {}:
@@ -142,6 +146,9 @@ class BuildDatabasePage(ttk.Frame):
     
     def show_loading_status(self, frame=0):
         """Show the loading status with an animated effect."""
+        #if the program stoped, don't show loading status
+        if self.check_if_stop():
+            return
         if self.loading_points.winfo_x() >= 390:
             self.loading_points.place(x=self.x_coordenate_of_loading_points)
             frame = 0
@@ -153,6 +160,9 @@ class BuildDatabasePage(ttk.Frame):
     
     def hide_loading_status(self):
         """Hide the loading status."""
+        #if the program stoped, don't show loading status
+        if self.check_if_stop():
+            return
         self.root.after_cancel(self.after_function_id)
         self.label_loading.place_forget()    
         self.loading_points.place_forget()
@@ -164,7 +174,7 @@ class BuildDatabasePage(ttk.Frame):
     
     def check_if_stop(self):
         """FUnction to check if the building must stop"""
-        return self.stop_building  
+        return self.stop_building or self.check_if_program_stoped() 
     
     def handle_stop_building(self):
         """Function to stop the building process"""
