@@ -99,13 +99,13 @@ class BuildDatabasePage(ttk.Frame):
             messagebox.showinfo("!","Nombre para la base de datos no válido")
         else:
             # Start the database generation in a new thread
+            self.disable_buttons()
+            self.show_loading_status()
             t = threading.Thread(target=self.generate_database, args=[url_carpeta_visuales, ruta_destino, nombre_db])
             t.start()   
     
     def generate_database(self, url_carpeta_visuales, ruta_destino, nombre_db):
         """Generate the database and save it to the specified path."""
-        self.disable_buttons()
-        self.show_loading_status()
         try:
             data = build_database(
                 url_carpeta_visuales, 
