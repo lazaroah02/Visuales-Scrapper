@@ -3,7 +3,7 @@ import subprocess
 import threading
 from tkinter import END, Checkbutton, Entry, Button, Label, IntVar, Text, messagebox, filedialog, ttk
 from functionalities.build_database import build_database
-import functionalities.scrapping as scrapping
+import utils.scrapping as scrapping
 from requests import RequestException
 from utils.utils import format_key_name
 
