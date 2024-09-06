@@ -9,7 +9,7 @@ FILE_EXTENSIONS = [
     # Imágenes
     '.jpg', '.jpeg', '.png', '.gif', '.bmp', '.tiff', '.svg', '.webp',  
     # Videos
-    '.mp4', '.mkv', '.avi', '.mov', '.wmv', '.flv', '.webm', '.mpg', '.mpeg', '.3gp', ".vob", 
+    '.mp4', '.mkv', '.avi', '.mov', '.wmv', '.flv', '.webm', '.mpg', '.mpeg', '.3gp', '.vob', '.divx', 
     # Audios
     '.mp3', '.wav', '.aac', '.ogg', '.m4a', '.flac', '.wma', '.aiff', '.alac',  
     # Documentos
