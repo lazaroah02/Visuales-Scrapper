@@ -144,7 +144,7 @@ class SearchPage(ttk.Frame):
     def show_loading_status(self, frame=0):
         """Show the loading status with an animated effect."""
         #if the program stoped, don't show loading status
-        if self.check_if_stop():
+        if self.check_if_program_stoped():
             return
         if self.loading_points.winfo_x() >= 200:
             self.loading_points.place(x=self.x_coordenate_of_loading_points)
@@ -158,7 +158,7 @@ class SearchPage(ttk.Frame):
     def hide_loading_status(self):
         """Hide the loading status."""
         #if the program stoped, don't show loading status
-        if self.check_if_stop():
+        if self.check_if_program_stoped():
             return
         self.root.after_cancel(self.after_function_id)
         self.label_loading.place_forget()    
