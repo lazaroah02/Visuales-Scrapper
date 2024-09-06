@@ -2,8 +2,10 @@ import os
 import subprocess
 import threading
 from tkinter import END, Checkbutton, Entry, Button, Label, IntVar, Text, messagebox, filedialog, ttk
+from functionalities.build_database import build_database
 import functionalities.scrapping as scrapping
 from requests import RequestException
+from utils.utils import format_key_name
 
 from utils.utils import recovery_idm_path, update_idm_path
 
@@ -40,23 +42,10 @@ class SeriesScrapperPage(ttk.Frame):
         self.checkbox_use_https_verification = Checkbutton(self, variable=self.use_https_verification, text="Usar verificación https", onvalue=1, offvalue=0)
         self.checkbox_use_https_verification.place(x=6, y=50)
 
-        self.type_of_scrapping = {
-            "none": "Tipo de Scrapping",
-            "serie": "Serie Completa",
-            "temp": "Temporada",
-        }
-
-        # Combobox to select whether to download a full series or a season
-        self.box_serie_or_temp = ttk.Combobox(self, text="Tipo de Scrapping", state="readonly",
-                                              values=[self.type_of_scrapping["serie"], self.type_of_scrapping["temp"]])
-        self.box_serie_or_temp.set(self.type_of_scrapping["none"])
-        self.box_serie_or_temp.config(width=75)
-        self.box_serie_or_temp.place(x=10, y=100)
-
         # Button to start scraping for a series
         self.button = Button(self, text="Iniciar Scrapping", command=self.iniciar_scrapping)
         self.button.config()
-        self.button.place(x=10, y=148)
+        self.button.place(x=10, y=100)
 
         # Label to show the loading status
         self.label_loading = Label(self, text="Procesando")
@@ -69,8 +58,8 @@ class SeriesScrapperPage(ttk.Frame):
         
         #text to show the scrapping result
         self.textarea_scrapping_result = Text(self)
-        self.textarea_scrapping_result.config(width = 59, height = 14)
-        self.textarea_scrapping_result.place(x = 10, y = 200)
+        self.textarea_scrapping_result.config(width = 59, height = 17)
+        self.textarea_scrapping_result.place(x = 10, y = 150)
         
         # Button to export scrapping results as files
         self.button_export_scrapping_results_as_files = Button(self, text="Exportar como archivos", command=self.start_exporting_as_files)
@@ -81,37 +70,40 @@ class SeriesScrapperPage(ttk.Frame):
         self.button_export_scrapping_results_to_idm.place(x=10, y=440)
         
         self.bind('<Return>', self.iniciar_scrapping)
-        self.box_serie_or_temp.bind('<Return>', self.iniciar_scrapping)
+        self.input_url_serie.bind('<Return>', self.iniciar_scrapping)
         
     def iniciar_scrapping(self, event = None):
         """Start the scraping process based on the selected type of scrapping."""
         url_serie = self.input_url_serie.get()
-        type_of_scrapping = self.box_serie_or_temp.get()
         
         # Check that no field is empty
         if url_serie == "":
             messagebox.showinfo("!","No pueden haber campos vacios")
-        elif type_of_scrapping == self.type_of_scrapping["none"]:    
-            messagebox.showinfo("!","Selecciona un tipo de Scrapping")
         else:
-            # If the user wants to download a full series
-            if type_of_scrapping == self.type_of_scrapping["serie"]:
-                t = threading.Thread(target=self.scrapping_serie, args=[url_serie])
-                t.start()   
-            # If the user wants to download only one season
-            else:
-                t = threading.Thread(target=self.scrapping_one_temp, args=[url_serie])
-                t.start() 
+            t = threading.Thread(target=self.scrapping_serie, args=[url_serie])
+            t.start()   
     
     def scrapping_serie(self, url_serie):
         """Get the links of a full series, including all seasons."""
         self.disable_buttons()
         self.show_loading_status()
+        
+        #creating the key to form the dict with the scrapping results
+        if url_serie.endswith("/"): key_name = format_key_name(url_serie.split("/")[-2])
+        else: key_name = format_key_name(url_serie.split("/")[-1])
+                
         try:
-            self.scrapping_results = scrapping.scrapping(url_serie, self.check_if_stop, verify = self.use_https_verification.get() == 1)
+            self.scrapping_results = {f"{key_name}": build_database(
+                url_serie, 
+                lambda x: None, 
+                self.check_if_stop,
+                verify = self.use_https_verification.get() == 1
+                )}
+
             #if the program stoped, don't show any message'
             if self.check_if_stop():
                 return
+
             self.show_scrapping_result(self.scrapping_results)
             messagebox.showinfo("!","Operacion finalizada con éxito")
             self.enable_buttons()
@@ -120,34 +112,11 @@ class SeriesScrapperPage(ttk.Frame):
             self.button.config(text="Reintentar")
             self.enable_buttons()
         except Exception as e:
-            messagebox.showinfo("!", "Herror al obtener los links") 
+            messagebox.showinfo("!", "Herror en el scrapping") 
             self.button.config(text="Reintentar")
             self.enable_buttons()  
         finally:
             self.hide_loading_status()      
-    
-    def scrapping_one_temp(self, url_serie):
-        """Get the links of one season of the series."""
-        self.disable_buttons()
-        self.show_loading_status()
-        try:
-            self.scrapping_results = scrapping.get_one_temp(url_serie, verify = self.use_https_verification.get() == 1)
-            #if the program stoped, don't show any message'
-            if self.check_if_stop():
-                return
-            self.show_scrapping_result(self.scrapping_results)
-            messagebox.showinfo("!","Operacion finalizada con éxito")
-            self.enable_buttons()            
-        except RequestException:
-            messagebox.showinfo("!", "Herror de conexion, revisa tu conexion a internet o el link de descarga")   
-            self.button.config(text="Reintentar")
-            self.enable_buttons()
-        except Exception:
-            messagebox.showinfo("!", "Herror al obtener los links")   
-            self.button.config(text="Reintentar")
-            self.enable_buttons() 
-        finally:
-            self.hide_loading_status()  
               
     def enable_buttons(self):
         """Enable the buttons in the UI."""
