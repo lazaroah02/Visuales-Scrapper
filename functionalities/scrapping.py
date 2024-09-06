@@ -2,11 +2,10 @@ import time
 from bs4 import BeautifulSoup
 import requests
 import concurrent.futures
-from utils.scrapping import get_links_of_html
-from utils.constants import FILE_EXTENSIONS
+from utils.constants import ALLOWED_FORMATS, FILE_EXTENSIONS
 from utils.utils import format_key_name
 
-def build_database(parent_folder_url, log_calback_function,  check_if_stop, verify = True):
+def scrape_visual_folders_recursively(parent_folder_url, log_calback_function,  check_if_stop, verify = True):
     """
     Build a database by recursively scraping links from a parent folder URL.
 
@@ -52,7 +51,7 @@ def build_database(parent_folder_url, log_calback_function,  check_if_stop, veri
         with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
             future_to_link = {
                 executor.submit(
-                    build_database, 
+                    scrape_visual_folders_recursively, 
                     parent_folder_url + link, 
                     log_calback_function, 
                     check_if_stop,
@@ -73,3 +72,24 @@ def build_database(parent_folder_url, log_calback_function,  check_if_stop, veri
     except Exception as e:
         log_calback_function(f"Error scrapping: {parent_folder_url} || {e}")
         return "Error Getting this folder info"
+
+def get_links_of_html(html):
+    """
+    Extract links of the episodes from the given HTML content.
+
+    Args:
+        html (str): The HTML content as a string.
+
+    Returns:
+        list: A list of links to the episodes.
+    """
+    soup = BeautifulSoup(html, features="lxml")
+    tags = soup("a")
+    links = []
+    for tag in tags:
+        link = tag.get("href")
+        if str(link[-3:len(link)]).lower() in ALLOWED_FORMATS:
+            if str(link).find("\\") != -1:
+                link = str(link).replace("\\","")
+            links.append(link)
+    return links     

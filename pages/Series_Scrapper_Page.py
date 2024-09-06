@@ -2,8 +2,7 @@ import os
 import subprocess
 import threading
 from tkinter import END, Checkbutton, Entry, Button, Label, IntVar, Text, messagebox, filedialog, ttk
-from functionalities.build_database import build_database
-import utils.scrapping as scrapping
+from functionalities.scrapping import scrape_visual_folders_recursively
 from requests import RequestException
 from utils.utils import format_key_name
 
@@ -93,7 +92,7 @@ class SeriesScrapperPage(ttk.Frame):
         else: key_name = format_key_name(url_serie.split("/")[-1])
                 
         try:
-            self.scrapping_results = {f"{key_name}": build_database(
+            self.scrapping_results = {f"{key_name}": scrape_visual_folders_recursively(
                 url_serie, 
                 lambda x: None, 
                 self.check_if_stop,

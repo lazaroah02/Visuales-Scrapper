@@ -1,7 +1,7 @@
 import json
 import threading
 from tkinter import Entry, Button, Label, Text, messagebox, filedialog, ttk, END, Checkbutton, IntVar
-from functionalities.build_database import build_database
+from functionalities.scrapping import scrape_visual_folders_recursively
 from utils.toast import Toast
 
 class BuildDatabasePage(ttk.Frame):
@@ -107,7 +107,7 @@ class BuildDatabasePage(ttk.Frame):
     def generate_database(self, url_carpeta_visuales, ruta_destino, nombre_db):
         """Generate the database and save it to the specified path."""
         try:
-            data = build_database(
+            data = scrape_visual_folders_recursively(
                 url_carpeta_visuales, 
                 self.log_callback_function, 
                 self.check_if_stop,
