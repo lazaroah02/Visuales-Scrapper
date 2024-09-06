@@ -19,7 +19,7 @@ def get_links_of_html(html):
     links = []
     for tag in tags:
         link = tag.get("href")
-        if link[-3:len(link)] in ALLOWED_FORMATS:
+        if str(link[-3:len(link)]).lower() in ALLOWED_FORMATS:
             if str(link).find("\\") != -1:
                 link = str(link).replace("\\","")
             links.append(link)

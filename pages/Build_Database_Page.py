@@ -2,6 +2,7 @@ import json
 import threading
 from tkinter import Entry, Button, Label, Text, messagebox, filedialog, ttk, END, Checkbutton, IntVar
 from functionalities.build_database import build_database
+from utils.toast import Toast
 
 class BuildDatabasePage(ttk.Frame):
     def __init__(self, parent, root, *args, **kwargs):
@@ -11,6 +12,9 @@ class BuildDatabasePage(ttk.Frame):
         
         #variable to store if use https verification or not
         self.use_https_verification = IntVar(value=1)
+
+        #variable to control when to stop the building
+        self.stop_building = False
 
         # Label for input URL of the visuals folder
         self.label_url_carpeta_visuales = Label(self, text="URL carpeta en visuales")
@@ -63,9 +67,14 @@ class BuildDatabasePage(ttk.Frame):
         
         #show log textarea
         self.text_area_log = Text(self)
-        self.text_area_log.config(width = 60, height = 11)
+        self.text_area_log.config(width = 60, height = 10)
         self.text_area_log.place(x = 8, y = 280)
-                                        
+        
+        # Button to stop the building
+        self.button_stop_building = Button(self, text="Detener", command = self.handle_stop_building)
+        self.button_stop_building.config()
+        self.button_stop_building.place(x=10, y=447)
+                                                
     def seleccionar_ruta_destino(self):
         """Open a dialog to select the destination folder and update the input field."""
         self.input_ruta_destino.delete(0, "end")
@@ -77,6 +86,7 @@ class BuildDatabasePage(ttk.Frame):
         url_carpeta_visuales = self.input_url_carpeta_visuales.get()
         ruta_destino = self.input_ruta_destino.get()
         nombre_db = self.input_nombre_db.get()
+        self.stop_building = False
         
         # Check that no field is empty
         if url_carpeta_visuales == "" or ruta_destino == "" or nombre_db == "":
@@ -96,6 +106,7 @@ class BuildDatabasePage(ttk.Frame):
             data = build_database(
                 url_carpeta_visuales, 
                 self.log_callback_function, 
+                self.check_if_stop,
                 verify = self.use_https_verification.get() == 1
                 )
             with open(f"{ruta_destino}/{nombre_db}.json", "w") as file:
@@ -147,3 +158,16 @@ class BuildDatabasePage(ttk.Frame):
         '''function to show a log in the log textarea'''
         self.text_area_log.insert(END, f"•{log}\n \n")
         self.text_area_log.see("end")    
+    
+    def check_if_stop(self):
+        """FUnction to check if the building must stop"""
+        return self.stop_building  
+    
+    def handle_stop_building(self):
+        """Function to stop the building process"""
+        if self.stop_building == False:
+            return messagebox.showinfo("!", "No hay nada que detener")
+        self.stop_building = True  
+        Toast(self.parent, title = "Stoping", message = "La operacion se detendra en breve ...")
+        self.hide_loading_status()
+        self.enable_buttons()

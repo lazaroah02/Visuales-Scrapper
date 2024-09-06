@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import PhotoImage, ttk
+from tkinter import messagebox
 from utils.utils import center_window
 from pages.Series_Scrapper_Page import SeriesScrapperPage
 from pages.Build_Database_Page import BuildDatabasePage
@@ -35,8 +36,15 @@ class Main():
 
         # Pack the tab control
         self.tabControl.pack(expand=1, fill="both")
+        
+        # Configure closing the window
+        self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
 
         # Start the main application loop
         self.root.mainloop()
+    
+    def on_closing(self):
+        if messagebox.askokcancel("Salir", "¿Quieres cerrar la aplicación?"):
+            self.root.destroy()     
 
 Main()

@@ -6,7 +6,7 @@ from functionalities.scrapping import get_links_of_html
 from utils.constants import FILE_EXTENSIONS
 from utils.utils import format_key_name
 
-def build_database(parent_folder_url, log_calback_function, verify = True):
+def build_database(parent_folder_url, log_calback_function,  check_if_stop, verify = True):
     """
     Build a database by recursively scraping links from a parent folder URL.
 
@@ -17,6 +17,8 @@ def build_database(parent_folder_url, log_calback_function, verify = True):
         dict or list: A dictionary of links if the folder contains subfolders,
                       or a list of media links if the folder contains media files.
     """
+    if check_if_stop():
+        return {}
     # Delay to avoid overloading the server
     time.sleep(5)
     
@@ -32,30 +34,37 @@ def build_database(parent_folder_url, log_calback_function, verify = True):
         
         # Get media links from the HTML content
         media_links = get_links_of_html(str(res.content))
-        if media_links:
-            return [parent_folder_url + link for link in media_links]
 
         # Parse the HTML content using BeautifulSoup
         soup = BeautifulSoup(res.content, features="lxml")
         tags = soup("a")
-        links = []
+        folders_links = []
         
         # Extract links from the HTML content, excluding media files
         for tag in tags[5:len(tags)]:
             link = tag.get('href')
             if link and not any(link.endswith(ext) or link.endswith(ext.upper()) for ext in FILE_EXTENSIONS):
-                links.append(link)
+                folders_links.append(link)
 
-        # Use ThreadPoolExecutor to scrape links concurrently
+        # Use ThreadPoolExecutor to scrape folders concurrently
         with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
             future_to_link = {
                 executor.submit(
                     build_database, 
                     parent_folder_url + link, 
-                    log_calback_function): 
-                        format_key_name(link) for link in links
+                    log_calback_function, 
+                    check_if_stop,
+                    verify): 
+                        format_key_name(link) for link in folders_links
                 }
             results = {future_to_link[future]: future.result() for future in concurrent.futures.as_completed(future_to_link)}
+        
+        # add losed links to the resultant dict
+        if len(media_links) > 0 and len(folders_links) > 0:
+            key_name = f"{format_key_name(str(parent_folder_url).split('/')[-2])}-links-sueltos"
+            results[key_name] = [parent_folder_url + link for link in media_links]
+        if len(media_links) > 0 and len(folders_links) == 0:
+            return [parent_folder_url + link for link in media_links]
 
         return results
     except Exception as e:

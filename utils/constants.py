@@ -1,14 +1,15 @@
 ALLOWED_FORMATS = [
-    "avi", "AVI", "srt", "SRT", "mkv", "MKV", "mp4", "MP4", "mpg", "MPG",
-    "mov", "MOV", "wmv", "WMV", "flv", "FLV", "webm", "WEBM", "3gp", "3GP",
-    "vtt", "VTT", "sub", "SUB", "ass", "ASS", "ssa", "SSA"
+    "avi", "srt", "mkv", "mp4", "mpg",
+    "mov", "wmv", "flv", "webm", "3gp",
+    "vtt", "sub", "ass", "ssa", "vob"
 ]
+
 
 FILE_EXTENSIONS = [
     # Imágenes
     '.jpg', '.jpeg', '.png', '.gif', '.bmp', '.tiff', '.svg', '.webp',  
     # Videos
-    '.mp4', '.mkv', '.avi', '.mov', '.wmv', '.flv', '.webm', '.mpg', '.mpeg', '.3gp',  
+    '.mp4', '.mkv', '.avi', '.mov', '.wmv', '.flv', '.webm', '.mpg', '.mpeg', '.3gp', "vob", 
     # Audios
     '.mp3', '.wav', '.aac', '.ogg', '.m4a', '.flac', '.wma', '.aiff', '.alac',  
     # Documentos
