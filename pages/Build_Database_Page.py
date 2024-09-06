@@ -74,6 +74,9 @@ class BuildDatabasePage(ttk.Frame):
         self.button_stop_building = Button(self, text="Detener", command = self.handle_stop_building)
         self.button_stop_building.config()
         self.button_stop_building.place(x=10, y=447)
+        
+        self.bind('<Return>', self.start_generating_database)
+        self.input_ruta_destino.bind('<Return>', self.start_generating_database)
                                                 
     def seleccionar_ruta_destino(self):
         """Open a dialog to select the destination folder and update the input field."""
@@ -81,7 +84,7 @@ class BuildDatabasePage(ttk.Frame):
         path = str(filedialog.askdirectory(initialdir = "D:\\Projects\\Visuales Scrapper\\databases"))
         self.input_ruta_destino.insert(0, path)
         
-    def start_generating_database(self):
+    def start_generating_database(self, event = None):
         """Start the process of generating the database in a new thread."""
         url_carpeta_visuales = self.input_url_carpeta_visuales.get()
         ruta_destino = self.input_ruta_destino.get()

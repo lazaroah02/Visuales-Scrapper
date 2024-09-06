@@ -79,7 +79,10 @@ class SeriesScrapperPage(ttk.Frame):
         self.button_export_scrapping_results_to_idm = Button(self, text="Exportar a IDM", command=self.start_exporting_to_idm)
         self.button_export_scrapping_results_to_idm.place(x=10, y=440)
         
-    def iniciar_scrapping(self):
+        self.bind('<Return>', self.iniciar_scrapping)
+        self.box_serie_or_temp.bind('<Return>', self.iniciar_scrapping)
+        
+    def iniciar_scrapping(self, event = None):
         """Start the scraping process based on the selected type of scrapping."""
         url_serie = self.input_url_serie.get()
         type_of_scrapping = self.box_serie_or_temp.get()
