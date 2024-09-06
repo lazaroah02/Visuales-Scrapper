@@ -165,7 +165,7 @@ class BuildDatabasePage(ttk.Frame):
     
     def handle_stop_building(self):
         """Function to stop the building process"""
-        if self.stop_building == False:
+        if self.stop_building == True:
             return messagebox.showinfo("!", "No hay nada que detener")
         self.stop_building = True  
         Toast(self.parent, title = "Stoping", message = "La operacion se detendra en breve ...")

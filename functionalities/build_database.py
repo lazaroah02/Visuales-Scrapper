@@ -18,7 +18,7 @@ def build_database(parent_folder_url, log_calback_function,  check_if_stop, veri
                       or a list of media links if the folder contains media files.
     """
     if check_if_stop():
-        return {}
+        return "Scrapping detenido por el usuario"
     # Delay to avoid overloading the server
     time.sleep(5)
     
@@ -63,6 +63,7 @@ def build_database(parent_folder_url, log_calback_function,  check_if_stop, veri
         if len(media_links) > 0 and len(folders_links) > 0:
             key_name = f"{format_key_name(str(parent_folder_url).split('/')[-2])}-links-sueltos"
             results[key_name] = [parent_folder_url + link for link in media_links]
+        # if there are only media links return them as a list
         if len(media_links) > 0 and len(folders_links) == 0:
             return [parent_folder_url + link for link in media_links]
 
