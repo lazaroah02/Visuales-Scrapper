@@ -38,7 +38,7 @@ FILE_EXTENSIONS = [
     '.exe', '.dll', '.bin', '.sys', '.msi', '.apk', '.deb', '.rpm',  '.com', '.drv',  
 
     # Otros
-    '.nfo', '.ts', '.m3u8', '.log', '.cfg', '.ini', '.inf', '.plist', '.bak', '.tmp', '.tmp2'
+    '.nfo', '.ts', '.m3u8', '.log', '.cfg', '.ini', '.inf', '.plist', '.bak', '.tmp', '.tmp2', '.url',
 ]
 
 DATABASE_DIRECTORY = "./remembered_database"
