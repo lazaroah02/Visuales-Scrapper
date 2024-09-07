@@ -2,7 +2,9 @@ ALLOWED_FORMATS = [
     "avi", "srt", "mkv", "mp4", "mpg",
     "mov", "wmv", "flv", "webm", "3gp",
     "vtt", "sub", "ass", "ssa", "vob",
-    "mpeg", "divx", "ifo", "bup" 
+    "mpeg", "divx", "ifo", "bup", "ts",
+    'asf', 'rm', 'swf', "smi", "stl", "mlx", 
+    "dfxp", "itt"
 ]
 
 
@@ -21,7 +23,7 @@ FILE_EXTENSIONS = [
 
     # Documentos
     '.pdf', '.doc', '.docx', '.xls', '.xlsx', '.ppt', '.pptx', '.txt', '.rtf', '.odt', '.ods', '.odp', '.srt',
-    '.wpd', '.tex', '.wps',  
+    '.wpd', '.tex', '.wps', '.dfxp', '.itt', 
 
     # Archivos comprimidos y de imagen de disco
     '.zip', '.rar', '.7z', '.tar', '.gz', '.bz2', '.xz', '.iso', '.dmg', '.db', 
