@@ -4,7 +4,7 @@ ALLOWED_FORMATS = [
     "vtt", "sub", "ass", "ssa", "vob",
     "mpeg", "divx", "ifo", "bup", "ts",
     'asf', 'rm', 'swf', "smi", "stl", "mlx", 
-    "dfxp", "itt"
+    "dfxp", "itt", "filepart"
 ]
 
 FILE_EXTENSIONS = [
@@ -36,7 +36,7 @@ FILE_EXTENSIONS = [
     '.exe', '.dll', '.bin', '.sys', '.msi', '.apk', '.deb', '.rpm',  '.com', '.drv',  
 
     # Otros
-    '.nfo', '.ts', '.m3u8', '.log', '.cfg', '.ini', '.inf', '.plist', '.bak', '.tmp', '.tmp2', '.url',
+    '.nfo', '.ts', '.m3u8', '.log', '.cfg', '.ini', '.inf', '.plist', '.bak', '.tmp', '.tmp2', '.url', '.filepart',
 ]
 
 DATABASE_DIRECTORY = "./remembered_database"
