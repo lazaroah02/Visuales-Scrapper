@@ -7,8 +7,6 @@ ALLOWED_FORMATS = [
     "dfxp", "itt"
 ]
 
-
-
 FILE_EXTENSIONS = [
     # Imágenes
     '.jpg', '.jpeg', '.png', '.gif', '.bmp', '.tiff', '.svg', '.webp',  '.pcx', '.tga',  

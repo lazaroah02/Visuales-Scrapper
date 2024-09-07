@@ -218,13 +218,13 @@ class SeriesScrapperPage(ttk.Frame):
             if not self.scrapping_results:
                 return messagebox.showinfo("!", "No hay nada que exportar")
             
-            self.label_loading.config(text="Exportando")
-            self.disable_buttons()
-            self.show_loading_status()
-            
             carpeta_destino = filedialog.askdirectory(title="Donde desea guardar el contenido")
             if not carpeta_destino:
                 return
+            
+            self.label_loading.config(text="Exportando")
+            self.disable_buttons()
+            self.show_loading_status()
             
             for show, seasons in self.scrapping_results.items():
                 #if the program stoped, stop the exportation
@@ -303,13 +303,13 @@ class SeriesScrapperPage(ttk.Frame):
             if not self.scrapping_results:
                 return messagebox.showinfo("!", "No hay nada que exportar")
             
-            self.label_loading.config(text="Exportando")
-            self.disable_buttons()
-            self.show_loading_status()
-            
             carpeta_destino = filedialog.askdirectory(title="Donde desea guardar el contenido")
             if not carpeta_destino:
                 return
+            
+            self.label_loading.config(text="Exportando")
+            self.disable_buttons()
+            self.show_loading_status()
             
             for show, seasons in self.scrapping_results.items():
                 #if the program stoped, stop the exportation
