@@ -23,7 +23,7 @@ FILE_EXTENSIONS = [
 
     # Documentos
     '.pdf', '.doc', '.docx', '.xls', '.xlsx', '.ppt', '.pptx', '.txt', '.rtf', '.odt', '.ods', '.odp', '.srt',
-    '.wpd', '.tex', '.wps', '.dfxp', '.itt', 
+    '.wpd', '.tex', '.wps', '.dfxp', '.itt', '.lnk',
 
     # Archivos comprimidos y de imagen de disco
     '.zip', '.rar', '.7z', '.tar', '.gz', '.bz2', '.xz', '.iso', '.dmg', '.db', 
@@ -38,7 +38,7 @@ FILE_EXTENSIONS = [
     '.exe', '.dll', '.bin', '.sys', '.msi', '.apk', '.deb', '.rpm',  '.com', '.drv',  
 
     # Otros
-    '.nfo', '.ts', '.m3u8', '.log', '.cfg', '.ini', '.inf', '.plist', '.bak', '.tmp',  
+    '.nfo', '.ts', '.m3u8', '.log', '.cfg', '.ini', '.inf', '.plist', '.bak', '.tmp', '.tmp2'
 ]
 
 DATABASE_DIRECTORY = "./remembered_database"
