@@ -8,10 +8,9 @@ from utils.utils import clean_folder, recovery_idm_path, update_idm_path
 from utils.constants import DATABASE_DIRECTORY
 
 class SearchPage(ttk.Frame):
-    def __init__(self, parent, root, check_if_program_stoped, *args, **kwargs):
+    def __init__(self, parent, check_if_program_stoped, *args, **kwargs):
         super().__init__(parent, *args, **kwargs)
         self.parent = parent
-        self.root = root
         self.check_if_program_stoped = check_if_program_stoped
         
         #variable to save the search results
@@ -75,7 +74,7 @@ class SearchPage(ttk.Frame):
         self.recovery_remembered_database()
         self.bind('<Return>', self.start_searching)
         self.input_search_value.bind('<Return>', self.start_searching)
-                                        
+                                                
     def load_database(self):
         """Open a dialog to select the database"""
         self.input_database_path.config(state = "normal")
@@ -153,14 +152,14 @@ class SearchPage(ttk.Frame):
         self.label_loading.place(x=70, y=163)     
         self.loading_points.place(x=(self.x_coordenate_of_loading_points + frame), y=168)
         # Schedule the next frame to be displayed after 250 milliseconds
-        self.after_function_id = self.root.after(250, self.show_loading_status, frame + 5)
+        self.after_function_id = self.after(250, self.show_loading_status, frame + 5)
     
     def hide_loading_status(self):
         """Hide the loading status."""
         #if the program stoped, don't show loading status
         if self.check_if_program_stoped():
             return
-        self.root.after_cancel(self.after_function_id)
+        self.after_cancel(self.after_function_id)
         self.label_loading.place_forget()    
         self.loading_points.place_forget()
 

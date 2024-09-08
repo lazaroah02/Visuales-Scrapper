@@ -9,7 +9,7 @@ from utils.utils import format_key_name
 from utils.utils import recovery_idm_path, update_idm_path
 
 class SeriesScrapperPage(ttk.Frame):
-    def __init__(self, parent, root, check_if_program_stoped, *args, **kwargs):
+    def __init__(self, parent, check_if_program_stoped, *args, **kwargs):
         """
         Initialize the SeriesScrapperPage with UI elements for scraping series.
 
@@ -19,7 +19,6 @@ class SeriesScrapperPage(ttk.Frame):
         """
         super().__init__(parent, *args, **kwargs)
         self.parent = parent
-        self.root = root
         self.check_if_program_stoped = check_if_program_stoped
         
         #variable to store if use https verification or not
@@ -141,14 +140,14 @@ class SeriesScrapperPage(ttk.Frame):
         self.label_loading.place(x=120, y=143)     
         self.loading_points.place(x=(self.x_coordenate_of_loading_points + frame), y=148)
         # Schedule the next frame to be displayed after 250 milliseconds
-        self.after_function_id = self.root.after(250, self.show_loading_status, frame + 5)
+        self.after_function_id = self.after(250, self.show_loading_status, frame + 5)
     
     def hide_loading_status(self):
         """Hide the loading status."""
         #if the program stoped, don't show loading status
         if self.check_if_program_stoped():
             return
-        self.root.after_cancel(self.after_function_id)
+        self.after_cancel(self.after_function_id)
         self.label_loading.place_forget()    
         self.loading_points.place_forget()
 

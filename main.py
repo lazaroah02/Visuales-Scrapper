@@ -27,9 +27,9 @@ class Main():
         self.tabControl = ttk.Notebook(self.root)
 
         # Create frames for each tab
-        self.series_scrapper_tab = SeriesScrapperPage(self.tabControl, root=self.root, check_if_program_stoped = self.check_if_program_stoped)
-        self.build_database_tab = BuildDatabasePage(self.tabControl, root=self.root, check_if_program_stoped = self.check_if_program_stoped)
-        self.search_tab = SearchPage(self.tabControl, root=self.root, check_if_program_stoped = self.check_if_program_stoped)
+        self.series_scrapper_tab = SeriesScrapperPage(self.tabControl, check_if_program_stoped = self.check_if_program_stoped)
+        self.build_database_tab = BuildDatabasePage(self.tabControl, check_if_program_stoped = self.check_if_program_stoped)
+        self.search_tab = SearchPage(self.tabControl, check_if_program_stoped = self.check_if_program_stoped)
                 
         # Add tabs to the tab control
         self.tabControl.add(self.search_tab, text='Search in Database')
