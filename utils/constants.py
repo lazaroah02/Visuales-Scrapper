@@ -4,7 +4,7 @@ ALLOWED_FORMATS = [
     "vtt", "sub", "ass", "ssa", "vob",
     "mpeg", "divx", "ifo", "bup", "ts",
     'asf', 'rm', 'swf', "smi", "stl", "mlx", 
-    "dfxp", "itt", "filepart", "m4v"
+    "dfxp", "itt", "filepart", "m4v", "rmvb"
 ]
 
 FILE_EXTENSIONS = [
@@ -13,7 +13,7 @@ FILE_EXTENSIONS = [
 
     # Videos
     '.mp4', '.mkv', '.avi', '.mov', '.wmv', '.flv', '.webm', '.mpg', '.mpeg', '.3gp', '.vob', '.divx', '.ifo', '.bup', 
-    '.asf', '.rm', '.swf', '.m4v', 
+    '.asf', '.rm', '.swf', '.m4v', '.rmvb',
 
     # Audios
     '.mp3', '.wav', '.aac', '.ogg', '.m4a', '.flac', '.wma', '.aiff', '.alac',  
