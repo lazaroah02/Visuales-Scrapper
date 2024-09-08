@@ -1,7 +1,8 @@
 import os
 import subprocess
 import threading
-from tkinter import END, Checkbutton, Entry, Button, Label, IntVar, Text, messagebox, filedialog, ttk
+from tkinter import END, Checkbutton, Entry, Button, Label, IntVar, messagebox, filedialog, ttk
+from tkinter.scrolledtext import ScrolledText
 from functionalities.scrapping import scrape_visual_folders_recursively
 from requests import RequestException
 from utils.utils import format_key_name
@@ -55,8 +56,7 @@ class SeriesScrapperPage(ttk.Frame):
         self.loading_points.config(fg="blue", font=("Courier", 15, "italic"))
         
         #text to show the scrapping result
-        self.textarea_scrapping_result = Text(self)
-        self.textarea_scrapping_result.config(width = 59, height = 17)
+        self.textarea_scrapping_result = ScrolledText(self, width = 58, height = 17)
         self.textarea_scrapping_result.place(x = 10, y = 150)
         
         # Button to export scrapping results as files

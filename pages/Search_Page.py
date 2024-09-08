@@ -2,7 +2,8 @@ import json
 import os
 import subprocess
 import threading
-from tkinter import Entry, Button, Label, Text, Checkbutton, IntVar, ttk, messagebox, filedialog, END
+from tkinter import Entry, Button, Label, Checkbutton, IntVar, ttk, messagebox, filedialog, END
+from tkinter.scrolledtext import ScrolledText
 from functionalities.search import find_all_matches_in_dict
 from utils.utils import clean_folder, recovery_idm_path, update_idm_path
 from utils.constants import DATABASE_DIRECTORY
@@ -59,9 +60,8 @@ class SearchPage(ttk.Frame):
         self.loading_points.config(fg="blue", font=("Courier", 15, "italic"))
         
         #text to show the searching result
-        self.textarea_search_result = Text(self)
-        self.textarea_search_result.config(width = 59, height = 14)
-        self.textarea_search_result.place(x = 10, y = 200)
+        self.textarea_search_result = ScrolledText(self, width=58, height=14)
+        self.textarea_search_result.place(x=10, y=200)
         
         # Button to export searching results as files
         self.button_export_searching_results_as_files = Button(self, text="Exportar como archivos", command=self.start_exporting_as_files)

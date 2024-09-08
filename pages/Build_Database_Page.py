@@ -1,6 +1,7 @@
 import json
 import threading
-from tkinter import Entry, Button, Label, Text, messagebox, filedialog, ttk, END, Checkbutton, IntVar
+from tkinter import Entry, Button, Label, messagebox, filedialog, ttk, END, Checkbutton, IntVar
+from tkinter.scrolledtext import ScrolledText
 from functionalities.scrapping import scrape_visual_folders_recursively
 from utils.toast import Toast
 
@@ -66,8 +67,7 @@ class BuildDatabasePage(ttk.Frame):
         self.loading_points.config(fg="blue", font=("Courier", 15, "italic"))
         
         #show log textarea
-        self.text_area_log = Text(self)
-        self.text_area_log.config(width = 60, height = 10)
+        self.text_area_log = ScrolledText(self, width = 58, height = 10)
         self.text_area_log.place(x = 8, y = 280)
         
         # Button to stop the building
