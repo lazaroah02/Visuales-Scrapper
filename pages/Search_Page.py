@@ -65,6 +65,7 @@ class SearchPage(ttk.Frame):
         self.show_search_results_container.place(x=10, y=200)
         
         #show searching result component
+        self.searching_results_ui_representation_elements = []
         self.show_search_results_box = ScrollableFrame(self.show_search_results_container)
         self.show_search_results_box.pack(fill="both", expand=False)
         
@@ -122,7 +123,7 @@ class SearchPage(ttk.Frame):
             if results == {}:
                 messagebox.showinfo("!", "No se encontraron coincidencias")       
             else:
-                #self.show_searching_result(results)
+                self.show_searching_result(results)
                 messagebox.showinfo("!","Operacion finalizada con éxito")
          
         except Exception as e:
@@ -192,7 +193,7 @@ class SearchPage(ttk.Frame):
                     self.input_database_path.config(state = "disabled")
         except:
             pass            
-
+    
     def show_searching_result(self, results):
         """
         Show the searching results on the log textarea for user to visualize if the output is correct.
@@ -211,23 +212,33 @@ class SearchPage(ttk.Frame):
                 }
             }
         """
-        self.textarea_search_result.delete(1.0, END)
+        # delete all the previous showed elements
+        for element in self.searching_results_ui_representation_elements:
+            element.destroy()
         
-        for show, seasons in results.items():
-            self.textarea_search_result.insert(END, f"{show}\n")
-            
+        for show, seasons in results.items(): 
+            show_collapsable = CollapsiblePane(
+                self.show_search_results_box.scrollable_frame, 
+                self.show_search_results_box.update_scrollregion, 
+                title = str(show)
+                )
+            show_collapsable.pack(fill="x", pady=5, padx=5)
+            self.searching_results_ui_representation_elements.append(show_collapsable)
             if isinstance(seasons, dict):
                 for season, links in seasons.items():
-                    self.textarea_search_result.insert(END, f"  -- {season}\n")
-                    for link in links:
-                        self.textarea_search_result.insert(END, f"       • {link}\n")
+                    season_collapsable = CollapsiblePane(
+                        show_collapsable, 
+                        self.show_search_results_box.update_scrollregion, 
+                        title = str(season),
+                        elements_text_list=links
+                        )
+                    season_collapsable.grid(row=1, column=0, sticky="w", padx=10)
+                    self.searching_results_ui_representation_elements.append(season_collapsable)
             elif isinstance(seasons, list):
-                for link in seasons:
-                    self.textarea_search_result.insert(END, f"   • {link}\n")
+                show_collapsable.elements_text_list = seasons
+                show_collapsable.render_element_list()
             else:
-                self.textarea_search_result.insert(END, f"   • {seasons}\n")
-            
-            self.textarea_search_result.insert(END, "\n")
+                pass       
 
     def export_searching_results_as_files(self):
         """
