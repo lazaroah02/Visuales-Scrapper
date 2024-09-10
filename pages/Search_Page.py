@@ -2,11 +2,12 @@ import json
 import os
 import subprocess
 import threading
-from tkinter import Entry, Button, Label, Checkbutton, IntVar, ttk, messagebox, filedialog, END
-from tkinter.scrolledtext import ScrolledText
+from tkinter import Entry, Button, Frame, Label, Checkbutton, IntVar, ttk, messagebox, filedialog, END
+from components.collapsible_pane import CollapsiblePane
 from functionalities.search import find_all_matches_in_dict
 from utils.utils import clean_folder, recovery_idm_path, update_idm_path, validate_folder_name
 from utils.constants import DATABASE_DIRECTORY
+from components.scrollable_frame import ScrollableFrame
 
 class SearchPage(ttk.Frame):
     def __init__(self, parent, check_if_program_stoped, *args, **kwargs):
@@ -59,9 +60,13 @@ class SearchPage(ttk.Frame):
         self.loading_points = Label(self, text=". . .")
         self.loading_points.config(fg="blue", font=("Courier", 15, "italic"))
         
-        #text to show the searching result
-        self.textarea_search_result = ScrolledText(self, width=58, height=14)
-        self.textarea_search_result.place(x=10, y=200)
+        #container of the show searching result component
+        self.show_search_results_container = Frame(self, width=58, height=14, borderwidth=1, relief="solid")
+        self.show_search_results_container.place(x=10, y=200)
+        
+        #show searching result component
+        self.show_search_results_box = ScrollableFrame(self.show_search_results_container)
+        self.show_search_results_box.pack(fill="both", expand=False)
         
         # Button to export searching results as files
         self.button_export_searching_results_as_files = Button(self, text="Exportar como archivos", command=self.start_exporting_as_files)
@@ -117,7 +122,7 @@ class SearchPage(ttk.Frame):
             if results == {}:
                 messagebox.showinfo("!", "No se encontraron coincidencias")       
             else:
-                self.show_searching_result(results)
+                #self.show_searching_result(results)
                 messagebox.showinfo("!","Operacion finalizada con éxito")
          
         except Exception as e:
