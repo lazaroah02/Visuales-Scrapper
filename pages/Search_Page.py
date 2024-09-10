@@ -214,7 +214,7 @@ class SearchPage(ttk.Frame):
         """
         # delete all the previous showed elements
         for element in self.searching_results_ui_representation_elements:
-            element.destroy()
+            element.destroy()   
         
         for show, seasons in results.items(): 
             show_collapsable = CollapsiblePane(
@@ -225,15 +225,17 @@ class SearchPage(ttk.Frame):
             show_collapsable.pack(fill="x", pady=5, padx=5)
             self.searching_results_ui_representation_elements.append(show_collapsable)
             if isinstance(seasons, dict):
+                cont = 1
                 for season, links in seasons.items():
                     season_collapsable = CollapsiblePane(
-                        show_collapsable, 
+                        show_collapsable.content_container, 
                         self.show_search_results_box.update_scrollregion, 
                         title = str(season),
                         elements_text_list=links
                         )
-                    season_collapsable.grid(row=1, column=0, sticky="w", padx=10)
+                    season_collapsable.grid(row=cont, column=0, sticky="w", padx=10)
                     self.searching_results_ui_representation_elements.append(season_collapsable)
+                    cont += 1
             elif isinstance(seasons, list):
                 show_collapsable.elements_text_list = seasons
                 show_collapsable.render_element_list()
