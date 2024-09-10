@@ -5,7 +5,7 @@ from tkinter import END, Checkbutton, Entry, Button, Label, IntVar, messagebox, 
 from tkinter.scrolledtext import ScrolledText
 from functionalities.scrapping import scrape_visual_folders_recursively
 from requests import RequestException
-from utils.utils import format_key_name
+from utils.utils import format_key_name, validate_folder_name
 
 from utils.utils import recovery_idm_path, update_idm_path
 
@@ -16,7 +16,6 @@ class SeriesScrapperPage(ttk.Frame):
 
         Args:
             parent (tk.Widget): The parent widget.
-            root (tk.Tk): The root Tkinter window.
         """
         super().__init__(parent, *args, **kwargs)
         self.parent = parent
@@ -229,7 +228,7 @@ class SeriesScrapperPage(ttk.Frame):
                 #if the program stoped, stop the exportation
                 if self.check_if_program_stoped():
                     return
-                carpeta_programa = os.path.join(carpeta_destino, show)
+                carpeta_programa = os.path.join(carpeta_destino, validate_folder_name(show))
                 
                 # Check if the folder already exists and add suffix if necessary
                 if os.path.exists(carpeta_programa):
@@ -239,7 +238,7 @@ class SeriesScrapperPage(ttk.Frame):
                 
                 if isinstance(seasons, dict):
                     for season, links in seasons.items():
-                        carpeta_temporada = os.path.join(carpeta_programa, season)
+                        carpeta_temporada = os.path.join(carpeta_programa, validate_folder_name(season))
                         os.makedirs(carpeta_temporada, exist_ok=True)
                         with open(f"{carpeta_temporada}/enlaces.txt", "w", encoding="utf-8") as file:
                             for link in links:
@@ -314,7 +313,7 @@ class SeriesScrapperPage(ttk.Frame):
                 #if the program stoped, stop the exportation
                 if self.check_if_program_stoped():
                     return
-                carpeta_programa = os.path.join(carpeta_destino, show)
+                carpeta_programa = os.path.join(carpeta_destino, validate_folder_name(show))
                 
                 # Check if the folder already exists and add suffix if necessary
                 if os.path.exists(carpeta_programa):
@@ -324,7 +323,7 @@ class SeriesScrapperPage(ttk.Frame):
                 
                 if isinstance(seasons, dict):
                     for season, links in seasons.items():
-                        carpeta_temporada = os.path.join(carpeta_programa, season)
+                        carpeta_temporada = os.path.join(carpeta_programa, validate_folder_name(season))
                         os.makedirs(carpeta_temporada, exist_ok=True)
                         for link in links:
                             subprocess.run([idm_path, '/d', link, '/p', carpeta_temporada, '/n', '/a'])

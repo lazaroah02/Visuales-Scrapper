@@ -30,6 +30,24 @@ def recovery_idm_path():
 def update_idm_path(new_path):
     with open("./idm_path.txt", "w") as idm_path_file:
         idm_path_file.write(new_path + "\n")
+        
+def validate_folder_name(folder_name):
+    '''Check that folder_name does not start or end with dot and create the folder if valid'''
+    folder_name = str(folder_name)
+    
+    # Remove leading and trailing dots
+    if folder_name.startswith("."):
+        folder_name = folder_name[1:]
+    if folder_name.endswith("."):
+        folder_name = folder_name[:-1]
+    
+    # Check for invalid characters
+    invalid_chars = '<>:"/\\|?*'
+    for char in invalid_chars:
+        folder_name = folder_name.replace(char, "")   
+
+    return folder_name
+      
 
                       
               

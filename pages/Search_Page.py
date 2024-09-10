@@ -5,7 +5,7 @@ import threading
 from tkinter import Entry, Button, Label, Checkbutton, IntVar, ttk, messagebox, filedialog, END
 from tkinter.scrolledtext import ScrolledText
 from functionalities.search import find_all_matches_in_dict
-from utils.utils import clean_folder, recovery_idm_path, update_idm_path
+from utils.utils import clean_folder, recovery_idm_path, update_idm_path, validate_folder_name
 from utils.constants import DATABASE_DIRECTORY
 
 class SearchPage(ttk.Frame):
@@ -177,13 +177,16 @@ class SearchPage(ttk.Frame):
             json.dump(database_data, f)     
     
     def recovery_remembered_database(self):
-        for file in os.listdir(DATABASE_DIRECTORY):
-            if file.endswith('.json'):
-                ruta_bd = DATABASE_DIRECTORY + "/" + file
-                self.input_database_path.config(state = "normal")
-                self.input_database_path.delete(0, "end")
-                self.input_database_path.insert(0, ruta_bd)
-                self.input_database_path.config(state = "disabled")
+        try:
+            for file in os.listdir(DATABASE_DIRECTORY):
+                if file.endswith('.json'):
+                    ruta_bd = DATABASE_DIRECTORY + "/" + file
+                    self.input_database_path.config(state = "normal")
+                    self.input_database_path.delete(0, "end")
+                    self.input_database_path.insert(0, ruta_bd)
+                    self.input_database_path.config(state = "disabled")
+        except:
+            pass            
 
     def show_searching_result(self, results):
         """
@@ -263,7 +266,7 @@ class SearchPage(ttk.Frame):
                 #if the program stoped, stop the exportation
                 if self.check_if_stop():
                     return
-                carpeta_programa = os.path.join(carpeta_destino, show)
+                carpeta_programa = os.path.join(carpeta_destino, validate_folder_name(show))
                 
                 # Check if the folder already exists and add suffix if necessary
                 if os.path.exists(carpeta_programa):
@@ -273,7 +276,7 @@ class SearchPage(ttk.Frame):
                 
                 if isinstance(seasons, dict):
                     for season, links in seasons.items():
-                        carpeta_temporada = os.path.join(carpeta_programa, season)
+                        carpeta_temporada = os.path.join(carpeta_programa, validate_folder_name(season))
                         os.makedirs(carpeta_temporada, exist_ok=True)
                         with open(f"{carpeta_temporada}/enlaces.txt", "w", encoding="utf-8") as file:
                             for link in links:
@@ -286,7 +289,7 @@ class SearchPage(ttk.Frame):
                     messagebox.showinfo("!Error", "Error al exportar")             
             
             messagebox.showinfo("!", "Exportación Exitosa")
-        except Exception:
+        except Exception as e:
             messagebox.showinfo("!Error", "Error al exportar")    
         finally:    
             self.label_loading.config(text="Buscando")
@@ -347,8 +350,9 @@ class SearchPage(ttk.Frame):
             for show, seasons in self.search_results.items():
                 #if the program stoped, stop the exportation
                 if self.check_if_stop():
-                    return
-                carpeta_programa = os.path.join(carpeta_destino, show)
+                    return   
+                
+                carpeta_programa = os.path.join(carpeta_destino, validate_folder_name(show))
                 
                 # Check if the folder already exists and add suffix if necessary
                 if os.path.exists(carpeta_programa):
@@ -358,7 +362,7 @@ class SearchPage(ttk.Frame):
                 
                 if isinstance(seasons, dict):
                     for season, links in seasons.items():
-                        carpeta_temporada = os.path.join(carpeta_programa, season)
+                        carpeta_temporada = os.path.join(carpeta_programa, validate_folder_name(season))
                         os.makedirs(carpeta_temporada, exist_ok=True)
                         for link in links:
                             subprocess.run([idm_path, '/d', link, '/p', carpeta_temporada, '/n', '/a'])
@@ -369,7 +373,7 @@ class SearchPage(ttk.Frame):
                     messagebox.showinfo("!Error", "Error al exportar")           
             
             messagebox.showinfo("!", "Exportación Exitosa")
-        except Exception:
+        except Exception as e:
             messagebox.showinfo("!Error", "Error al exportar")    
         finally:    
             self.label_loading.config(text="Buscando")
