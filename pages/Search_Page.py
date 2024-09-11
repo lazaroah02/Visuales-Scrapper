@@ -287,6 +287,7 @@ class SearchPage(ttk.Frame):
                 return messagebox.showinfo("!", "No hay nada que exportar")
             
             carpeta_destino = filedialog.askdirectory(title="Donde desea guardar el contenido")
+            
             if not carpeta_destino:
                 return
             
@@ -380,10 +381,11 @@ class SearchPage(ttk.Frame):
                 else:
                     return messagebox.showinfo("Error", "No se seleccionó una ruta válida para IDM. Pruebe exportar como archivo")    
             
-            if not self.search_results:
+            if not self.searching_results_ui_representation_elements:
                 return messagebox.showinfo("!", "No hay nada que exportar")
             
             carpeta_destino = filedialog.askdirectory(title="Donde desea guardar el contenido")
+            
             if not carpeta_destino:
                 return
             
@@ -391,12 +393,15 @@ class SearchPage(ttk.Frame):
             self.disable_buttons()
             self.show_loading_status()
             
-            for show, seasons in self.search_results.items():
+            for collapsable in self.searching_results_ui_representation_elements:
                 #if the program stoped, stop the exportation
                 if self.check_if_stop():
                     return   
                 
-                carpeta_programa = os.path.join(carpeta_destino, validate_folder_name(show))
+                if collapsable.selected.get() == 0:
+                    continue
+                
+                carpeta_programa = os.path.join(carpeta_destino, validate_folder_name(collapsable.title))
                 
                 # Check if the folder already exists and add suffix if necessary
                 if os.path.exists(carpeta_programa):
@@ -404,17 +409,25 @@ class SearchPage(ttk.Frame):
                 
                 os.makedirs(carpeta_programa, exist_ok=True)
                 
-                if isinstance(seasons, dict):
-                    for season, links in seasons.items():
-                        carpeta_temporada = os.path.join(carpeta_programa, validate_folder_name(season))
+                for child in collapsable.selectable_children: 
+                    
+                    if child.selected.get() == 0:
+                        continue
+                    
+                    if isinstance(child, CollapsiblePane):
+                        carpeta_temporada = os.path.join(carpeta_programa, validate_folder_name(child.title))
                         os.makedirs(carpeta_temporada, exist_ok=True)
-                        for link in links:
-                            subprocess.run([idm_path, '/d', link, '/p', carpeta_temporada, '/n', '/a'])
-                elif isinstance(seasons, list):
-                    for link in seasons:
-                        subprocess.run([idm_path, '/d', link, '/p', carpeta_programa, '/n', '/a'])
-                else:
-                    messagebox.showinfo("!Error", "Error al exportar")           
+                        
+                        for selectable in child.selectable_children:
+                            if selectable.selected.get() == 0:
+                                continue
+                            subprocess.run([idm_path, '/d', selectable.text, '/p', carpeta_temporada, '/n', '/a'])
+                    
+                    elif isinstance(child, Selectable):
+                        subprocess.run([idm_path, '/d', child.text, '/p', carpeta_programa, '/n', '/a'])
+                    
+                    else:
+                        pass           
             
             messagebox.showinfo("!", "Exportación Exitosa")
         except Exception as e:
