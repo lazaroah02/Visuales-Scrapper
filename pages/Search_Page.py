@@ -214,7 +214,8 @@ class SearchPage(ttk.Frame):
         """
         # delete all the previous showed elements
         for element in self.searching_results_ui_representation_elements:
-            element.destroy()   
+            element.destroy()  
+        self.searching_results_ui_representation_elements = []     
         
         # iterate over each serie, show or movie and create a collapsible pane for each one
         for show, seasons in results.items(): 
