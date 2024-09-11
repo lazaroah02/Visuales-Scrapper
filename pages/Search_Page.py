@@ -4,6 +4,7 @@ import subprocess
 import threading
 from tkinter import Entry, Button, Frame, Label, Checkbutton, IntVar, ttk, messagebox, filedialog, END
 from components.collapsible_pane import CollapsiblePane
+from components.selectable import Selectable
 from functionalities.search import find_all_matches_in_dict
 from utils.utils import clean_folder, recovery_idm_path, update_idm_path, validate_folder_name
 from utils.constants import DATABASE_DIRECTORY
@@ -14,9 +15,6 @@ class SearchPage(ttk.Frame):
         super().__init__(parent, *args, **kwargs)
         self.parent = parent
         self.check_if_program_stoped = check_if_program_stoped
-        
-        #variable to save the search results
-        self.search_results = {}
         
         #variable to save if the user wants to remember the database or not
         self.remember_database = IntVar(value=1)
@@ -119,11 +117,10 @@ class SearchPage(ttk.Frame):
             database_data = json.load(file) 
         try:
             results = find_all_matches_in_dict(database_data, search_value) 
-            self.search_results = results
+            self.show_searching_result(results)
             if results == {}:
                 messagebox.showinfo("!", "No se encontraron coincidencias")       
             else:
-                self.show_searching_result(results)
                 messagebox.showinfo("!","Operacion finalizada con éxito")
          
         except Exception as e:
@@ -196,7 +193,10 @@ class SearchPage(ttk.Frame):
     
     def show_searching_result(self, results):
         """
-        Show the searching results on the log textarea for user to visualize if the output is correct.
+        Show the searching results for user to visualize if the output is correct. 
+        The way that the searching results is showed is through an anidated group of collapsable pane where each one is a folder
+        and can have inside subfolders(collapsable panes too) or selectables component for media link.
+        The object is that the user can select what content export.
 
         Args:
             results (dict): A dictionary where the keys are show names and the values are seasons or links.
@@ -216,29 +216,48 @@ class SearchPage(ttk.Frame):
         for element in self.searching_results_ui_representation_elements:
             element.destroy()   
         
+        # iterate over each serie, show or movie and create a collapsible pane for each one
         for show, seasons in results.items(): 
             show_collapsable = CollapsiblePane(
                 self.show_search_results_box.scrollable_frame, 
                 self.show_search_results_box.update_scrollregion, 
                 title = str(show)
-                )
+            )
             show_collapsable.pack(fill="x", pady=5, padx=5)
             self.searching_results_ui_representation_elements.append(show_collapsable)
+            
             if isinstance(seasons, dict):
-                cont = 1
+                cont_seasons = 1 #seasons counter
+                
+                #iterate over each season folder and create a collapsible pane for each one
                 for season, links in seasons.items():
                     season_collapsable = CollapsiblePane(
                         show_collapsable.content_container, 
                         self.show_search_results_box.update_scrollregion, 
                         title = str(season),
-                        elements_text_list=links
-                        )
-                    season_collapsable.grid(row=cont, column=0, sticky="w", padx=10)
-                    self.searching_results_ui_representation_elements.append(season_collapsable)
-                    cont += 1
+                    )
+                    season_collapsable.grid(row=cont_seasons, column=0, sticky="w", padx=10)
+                    show_collapsable.selectable_children.append(season_collapsable)
+                    
+                    cont_seasons += 1
+                    cont_links = 1 #links of episodes or media counter
+                    
+                    #iterate over each link in the folder and create a selectable component for each one
+                    for link in links:
+                        link_selectable = Selectable(season_collapsable.content_container, text=link)
+                        link_selectable.grid(row=cont_links, column=0, sticky="w", padx=10)
+                        season_collapsable.selectable_children.append(link_selectable)
+                        cont_links += 1
+            
             elif isinstance(seasons, list):
-                show_collapsable.elements_text_list = seasons
-                show_collapsable.render_element_list()
+                cont_links = 1 # links of episodes or media counter
+                
+                #iterate over each link in the folder and create a selectable component for each one
+                for link in seasons:
+                    link_selectable = Selectable(show_collapsable.content_container, text=link)
+                    link_selectable.grid(row=cont_links, column=0, sticky="w", padx=10)
+                    show_collapsable.selectable_children.append(link_selectable)
+                    cont_links += 1
             else:
                 pass       
 

@@ -11,7 +11,7 @@ class CollapsiblePane(ttk.Frame):
     EXPANDED_TEXT = "^"
     COLLAPSED_TEXT = ">"
 
-    def __init__(self, parent, update_scrollregion, title="", elements_text_list=[]):
+    def __init__(self, parent, update_scrollregion, title=""):
         """
         Initialize the CollapsiblePane.
 
@@ -23,8 +23,8 @@ class CollapsiblePane(ttk.Frame):
         # Function to update the scroll on CollapsiblePane expand
         self.update_scrollregion = update_scrollregion
         
-        self.elements_text_list = elements_text_list
-        self.elements_list = []
+        #list of selectable_children of the pane
+        self.selectable_children = []
 
         # Variable to control if the collapsible pane is collapsed or expanded
         self.collapsed = False
@@ -33,7 +33,7 @@ class CollapsiblePane(ttk.Frame):
         self.selected = tk.IntVar(value=1)
 
         # Create a select button to select this CollapsiblePane
-        self.checkbutton = ttk.Checkbutton(self, text=None, variable=self.selected, onvalue=1, offvalue=0)
+        self.checkbutton = ttk.Checkbutton(self, text=None, variable=self.selected, onvalue=1, offvalue=0, command = self.on_select)
         self.checkbutton.grid(row=0, column=0, sticky="w")
 
         # Create a Button to toggle the pane
@@ -59,7 +59,6 @@ class CollapsiblePane(ttk.Frame):
 
         # Activate the pane (set initial state)
         self._activate()
-        self.render_element_list()
 
     def _activate(self):
         """
@@ -78,13 +77,11 @@ class CollapsiblePane(ttk.Frame):
 
         # Update the scroll region
         self.update_scrollregion()
-
-    def render_element_list(self):
-        # Render the elements list where each element is a checkbox
-        self.elements_list = []
-        cont = 0
-        for element in self.elements_text_list:
-            self.elements_list.append(
-                Selectable(self.content_container, text=element).grid(row=cont, column=0, sticky="w", padx=10)
-            )
-            cont += 1
+    
+    def on_select(self):
+        """Activate or deactivate selectable_children of the pane"""
+        for child in self.selectable_children:
+            if self.selected.get() == 1:
+                child.selected.set(1)
+            else:
+                child.selected.set(0)          
