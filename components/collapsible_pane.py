@@ -1,5 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
+
+from components.select_all_elements import SelectAllElements
 from .selectable import Selectable
 
 class CollapsiblePane(ttk.Frame):
@@ -59,6 +61,10 @@ class CollapsiblePane(ttk.Frame):
 
         # Create a frame to hold the content of the collapsible pane
         self.content_container = ttk.Frame(self)
+        
+        # create the select all elements for this Collapsible Pane
+        self.select_all_elements = SelectAllElements(self.content_container)
+        self.select_all_elements.grid(row=1, column=0, sticky="w", padx=10)
 
         # Activate the pane (set initial state)
         self._activate()
@@ -87,4 +93,9 @@ class CollapsiblePane(ttk.Frame):
             if self.selected.get() == 1:
                 child.selected.set(1)
             else:
-                child.selected.set(0)          
+                child.selected.set(0) 
+        self.select_all_elements.selected.set(0) if self.selected.get() == 0 else self.select_all_elements.selected.set(1)                 
+
+    def add_child(self, new_child):
+        self.selectable_children.append(new_child)
+        self.select_all_elements.elements_to_select.append(new_child)

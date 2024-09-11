@@ -126,7 +126,7 @@ class SearchPage(ttk.Frame):
             if results == {}:
                 messagebox.showinfo("!", "No se encontraron coincidencias")       
             else:
-                messagebox.showinfo("!","Operacion finalizada con éxito")
+                pass
          
         except Exception as e:
             messagebox.showinfo("!", "Herror al realizar la busqueda: " + str(e))   
@@ -238,11 +238,8 @@ class SearchPage(ttk.Frame):
             self.select_all_search_results_to_export.elements_to_select.append(show_collapsable)
             
             if isinstance(seasons, dict):
-                cont_seasons = 2 #seasons counter
-                
-                # create the select all seasons for this Collapsible Pane
-                select_all_seasons = SelectAllElements(show_collapsable.content_container)
-                select_all_seasons.grid(row=1, column=0, sticky="w", padx=10)
+                #seasons counter. Start in 2 because the position 1 belongs to 'select all component'
+                cont_seasons = 2
                 
                 #iterate over each season folder and create a collapsible pane for each one
                 for season, links in seasons.items():
@@ -254,43 +251,30 @@ class SearchPage(ttk.Frame):
                     season_collapsable.grid(row=cont_seasons, column=0, sticky="w", padx=10)
                     
                     # add the season_collapsable to the parent children list
-                    show_collapsable.selectable_children.append(season_collapsable)
-                    
-                    #add the collapsable to the select all seasons for select or deselect
-                    select_all_seasons.elements_to_select.append(season_collapsable)
-                    
-                    # create the select all component for this Collapsible Pane
-                    select_all_episodes = SelectAllElements(season_collapsable.content_container)
-                    select_all_episodes.grid(row=1, column=0, sticky="w", padx=10)
+                    show_collapsable.add_child(season_collapsable)
                     
                     cont_seasons += 1
-                    cont_links = 2 #links of episodes or media counter
+                    #links of episodes or media counter. Start in 2 because the position 1 belongs to 'select all component'
+                    cont_links = 2 
                     
                     #iterate over each link in the folder and create a selectable component for each one
                     for link in links:
                         link_selectable = Selectable(season_collapsable.content_container, text=link)
                         link_selectable.grid(row=cont_links, column=0, sticky="w", padx=10)
                         # add the selectable to the parent children list
-                        season_collapsable.selectable_children.append(link_selectable)
-                        #add the selectable to the select all results for select or deselect
-                        select_all_episodes.elements_to_select.append(link_selectable) 
+                        season_collapsable.add_child(link_selectable) 
                         cont_links += 1
             
             elif isinstance(seasons, list):
-                cont_links = 2 # links of episodes or media counter
-                
-                # create the select all seasons for this Collapsible Pane
-                select_all_links = SelectAllElements(show_collapsable.content_container)
-                select_all_links.grid(row=1, column=0, sticky="w", padx=10)
+                #links of episodes or media counter. Start in 2 because the position 1 belongs to 'select all component'
+                cont_links = 2
                 
                 #iterate over each link in the folder and create a selectable component for each one
                 for link in seasons:
                     link_selectable = Selectable(show_collapsable.content_container, text=link)
                     link_selectable.grid(row=cont_links, column=0, sticky="w", padx=10)
                     # add the selectable to the parent children list
-                    show_collapsable.selectable_children.append(link_selectable)
-                    #add the selectable to the select all results for select or deselect
-                    select_all_links.elements_to_select.append(link_selectable) 
+                    show_collapsable.add_child(link_selectable)
                     cont_links += 1
             else:
                 pass 
