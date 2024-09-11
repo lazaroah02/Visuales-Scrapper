@@ -23,6 +23,9 @@ class CollapsiblePane(ttk.Frame):
         # Function to update the scroll on CollapsiblePane expand
         self.update_scrollregion = update_scrollregion
         
+        # title
+        self.title = title
+        
         #list of selectable_children of the pane
         self.selectable_children = []
 

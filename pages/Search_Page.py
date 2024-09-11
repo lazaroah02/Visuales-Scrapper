@@ -281,14 +281,8 @@ class SearchPage(ttk.Frame):
                 }
             }
         """
-        """
-        url = "http://localhost:8080/Aida/01/Aida%20-%201x01%20-%20Una%20Vida%20Nueva%20.avi" 
-        download_path = "D:/"  # Carpeta de destino
-        idm_path = "C:\\Program Files (x86)\\Internet Download Manager\\IDMan.exe"
-        subprocess.run([idm_path, '/d', url, '/p', download_path, '/n', '/a'])
-        """
         try:
-            if not self.search_results:
+            if not self.searching_results_ui_representation_elements:
                 return messagebox.showinfo("!", "No hay nada que exportar")
             
             carpeta_destino = filedialog.askdirectory(title="Donde desea guardar el contenido")
@@ -299,11 +293,15 @@ class SearchPage(ttk.Frame):
             self.disable_buttons()
             self.show_loading_status()
             
-            for show, seasons in self.search_results.items():
+            for collapsable in self.searching_results_ui_representation_elements:
                 #if the program stoped, stop the exportation
                 if self.check_if_stop():
                     return
-                carpeta_programa = os.path.join(carpeta_destino, validate_folder_name(show))
+                
+                if collapsable.selected.get() == 0:
+                    continue
+                
+                carpeta_programa = os.path.join(carpeta_destino, validate_folder_name(collapsable.title))
                 
                 # Check if the folder already exists and add suffix if necessary
                 if os.path.exists(carpeta_programa):
@@ -311,19 +309,27 @@ class SearchPage(ttk.Frame):
                 
                 os.makedirs(carpeta_programa, exist_ok=True)
                 
-                if isinstance(seasons, dict):
-                    for season, links in seasons.items():
-                        carpeta_temporada = os.path.join(carpeta_programa, validate_folder_name(season))
+                for child in collapsable.selectable_children:
+                    
+                    if child.selected.get() == 0:
+                        continue
+                    
+                    if isinstance(child, CollapsiblePane):
+                        carpeta_temporada = os.path.join(carpeta_programa, validate_folder_name(child.title))
                         os.makedirs(carpeta_temporada, exist_ok=True)
+                        
                         with open(f"{carpeta_temporada}/enlaces.txt", "w", encoding="utf-8") as file:
-                            for link in links:
-                                file.write(f"{link}\n")
-                elif isinstance(seasons, list):
-                    with open(f"{carpeta_programa}/enlaces.txt", "w", encoding="utf-8") as file:
-                        for link in seasons:
-                            file.write(f"{link}\n")
-                else:
-                    messagebox.showinfo("!Error", "Error al exportar")             
+                            for selectable in child.selectable_children:
+                                if selectable.selected.get() == 0:
+                                    continue
+                                file.write(f"{selectable.text}\n")
+                                    
+                    elif isinstance(child, Selectable):
+                        with open(f"{carpeta_programa}/enlaces.txt", "a", encoding="utf-8") as file:
+                            file.write(f"{child.text}\n") 
+                                
+                    else:
+                        pass                       
             
             messagebox.showinfo("!", "Exportación Exitosa")
         except Exception as e:
