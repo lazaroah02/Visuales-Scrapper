@@ -4,6 +4,7 @@ import subprocess
 import threading
 from tkinter import Entry, Button, Frame, Label, Checkbutton, IntVar, ttk, messagebox, filedialog, END
 from components.collapsible_pane import CollapsiblePane
+from components.select_all_elements import SelectAllElements
 from components.selectable import Selectable
 from functionalities.search import find_all_matches_in_dict
 from utils.utils import clean_folder, recovery_idm_path, update_idm_path, validate_folder_name
@@ -66,6 +67,10 @@ class SearchPage(ttk.Frame):
         self.searching_results_ui_representation_elements = []
         self.show_search_results_box = ScrollableFrame(self.show_search_results_container)
         self.show_search_results_box.pack(fill="both", expand=False)
+        
+        #select all searching results component
+        self.select_all_search_results_to_export = SelectAllElements(self.show_search_results_box.scrollable_frame)
+        self.select_all_search_results_to_export.pack(fill="x", pady=5, padx=5)
         
         # Button to export searching results as files
         self.button_export_searching_results_as_files = Button(self, text="Exportar como archivos", command=self.start_exporting_as_files)
@@ -215,8 +220,10 @@ class SearchPage(ttk.Frame):
         # delete all the previous showed elements
         for element in self.searching_results_ui_representation_elements:
             element.destroy()  
-        self.searching_results_ui_representation_elements = []     
-        
+        #reset the list that storage ui elements    
+        self.searching_results_ui_representation_elements = []  
+        self.select_all_search_results_to_export.elements_to_select = []
+            
         # iterate over each serie, show or movie and create a collapsible pane for each one
         for show, seasons in results.items(): 
             show_collapsable = CollapsiblePane(
@@ -225,10 +232,17 @@ class SearchPage(ttk.Frame):
                 title = str(show)
             )
             show_collapsable.pack(fill="x", pady=5, padx=5)
+            #add the collapsable to the searching results ui elements list for future iteration
             self.searching_results_ui_representation_elements.append(show_collapsable)
+            #add the collapsable to the select all results ui elements list for select or deselect all the elements
+            self.select_all_search_results_to_export.elements_to_select.append(show_collapsable)
             
             if isinstance(seasons, dict):
-                cont_seasons = 1 #seasons counter
+                cont_seasons = 2 #seasons counter
+                
+                # create the select all seasons for this Collapsible Pane
+                select_all_seasons = SelectAllElements(show_collapsable.content_container)
+                select_all_seasons.grid(row=1, column=0, sticky="w", padx=10)
                 
                 #iterate over each season folder and create a collapsible pane for each one
                 for season, links in seasons.items():
@@ -238,30 +252,49 @@ class SearchPage(ttk.Frame):
                         title = str(season),
                     )
                     season_collapsable.grid(row=cont_seasons, column=0, sticky="w", padx=10)
+                    
+                    # add the season_collapsable to the parent children list
                     show_collapsable.selectable_children.append(season_collapsable)
                     
+                    #add the collapsable to the select all seasons for select or deselect
+                    select_all_seasons.elements_to_select.append(season_collapsable)
+                    
+                    # create the select all component for this Collapsible Pane
+                    select_all_episodes = SelectAllElements(season_collapsable.content_container)
+                    select_all_episodes.grid(row=1, column=0, sticky="w", padx=10)
+                    
                     cont_seasons += 1
-                    cont_links = 1 #links of episodes or media counter
+                    cont_links = 2 #links of episodes or media counter
                     
                     #iterate over each link in the folder and create a selectable component for each one
                     for link in links:
                         link_selectable = Selectable(season_collapsable.content_container, text=link)
                         link_selectable.grid(row=cont_links, column=0, sticky="w", padx=10)
+                        # add the selectable to the parent children list
                         season_collapsable.selectable_children.append(link_selectable)
+                        #add the selectable to the select all results for select or deselect
+                        select_all_episodes.elements_to_select.append(link_selectable) 
                         cont_links += 1
             
             elif isinstance(seasons, list):
-                cont_links = 1 # links of episodes or media counter
+                cont_links = 2 # links of episodes or media counter
+                
+                # create the select all seasons for this Collapsible Pane
+                select_all_links = SelectAllElements(show_collapsable.content_container)
+                select_all_links.grid(row=1, column=0, sticky="w", padx=10)
                 
                 #iterate over each link in the folder and create a selectable component for each one
                 for link in seasons:
                     link_selectable = Selectable(show_collapsable.content_container, text=link)
                     link_selectable.grid(row=cont_links, column=0, sticky="w", padx=10)
+                    # add the selectable to the parent children list
                     show_collapsable.selectable_children.append(link_selectable)
+                    #add the selectable to the select all results for select or deselect
+                    select_all_links.elements_to_select.append(link_selectable) 
                     cont_links += 1
             else:
-                pass       
-
+                pass 
+            
     def export_searching_results_as_files(self):
         """
         Export the searching results to the desired folder.
