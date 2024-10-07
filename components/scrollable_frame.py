@@ -2,7 +2,7 @@ import tkinter as tk
 from tkinter import ttk
 
 class ScrollableFrame(ttk.Frame):
-    def __init__(self, container, *args, **kwargs):
+    def __init__(self, container, width=460, height=215, *args, **kwargs):
         super().__init__(container, *args, **kwargs)
         self.canvas = tk.Canvas(self, borderwidth=0, highlightthickness=0)
         self.scrollable_frame = ttk.Frame(self.canvas)
@@ -17,7 +17,7 @@ class ScrollableFrame(ttk.Frame):
         )
 
         self.canvas.create_window((0, 0), window=self.scrollable_frame, anchor="nw")
-        self.canvas.configure(yscrollcommand=self.v_scrollbar.set, xscrollcommand=self.h_scrollbar.set, width=460, height=215)
+        self.canvas.configure(yscrollcommand=self.v_scrollbar.set, xscrollcommand=self.h_scrollbar.set, width=width, height=height)
 
         # Usar grid para posicionar los scrollbars
         self.canvas.grid(row=0, column=0, sticky="nsew")

@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import PhotoImage, ttk, messagebox
+from pages.Specific_Media_Scrapper_Page import SpecificMediaScrapperPage
 from utils.utils import center_window
 from pages.Build_Database_Page import BuildDatabasePage
 from pages.Search_Page import SearchPage
@@ -26,12 +27,14 @@ class Main():
         self.tabControl = ttk.Notebook(self.root)
 
         # Create frames for each tab
-        self.build_database_tab = BuildDatabasePage(self.tabControl, check_if_program_stoped = self.check_if_program_stoped)
         self.search_tab = SearchPage(self.tabControl, check_if_program_stoped = self.check_if_program_stoped)
+        self.build_database_tab = BuildDatabasePage(self.tabControl, check_if_program_stoped = self.check_if_program_stoped)
+        self.scrape_specific_media_tab = SpecificMediaScrapperPage(self.tabControl, check_if_program_stoped = self.check_if_program_stoped)
                 
         # Add tabs to the tab control
         self.tabControl.add(self.search_tab, text='Search in Database')
         self.tabControl.add(self.build_database_tab, text='Build Database')
+        self.tabControl.add(self.scrape_specific_media_tab, text='Scrape Specific Media')
 
         # Pack the tab control
         self.tabControl.pack(expand=1, fill="both")
