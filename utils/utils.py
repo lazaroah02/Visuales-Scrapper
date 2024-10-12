@@ -16,10 +16,17 @@ def format_key_name(key):
 
 def clean_folder(folder):
     #remove all files from a folder
-        for file in os.listdir(folder):
-            file_path = os.path.join(folder, file)
-            if os.path.isfile(file_path):
-                os.remove(file_path)
+    for file in os.listdir(folder):
+        file_path = os.path.join(folder, file)
+        if os.path.isfile(file_path):
+            os.remove(file_path)
+
+def folder_exists(path):
+    try:
+        os.listdir(path)
+        return True
+    except:
+        return False   
 
 def recovery_idm_path():
     with open("./idm_path.txt", "r") as idm_path_file:

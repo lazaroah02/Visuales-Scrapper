@@ -7,7 +7,7 @@ from components.collapsible_pane import CollapsiblePane
 from components.select_all_elements import SelectAllElements
 from components.selectable import Selectable
 from functionalities.search import find_all_matches_in_dict
-from utils.utils import clean_folder, recovery_idm_path, update_idm_path, validate_folder_name
+from utils.utils import clean_folder, recovery_idm_path, update_idm_path, validate_folder_name, folder_exists
 from utils.constants import DATABASE_DIRECTORY
 from components.scrollable_frame import ScrollableFrame
 
@@ -172,17 +172,21 @@ class SearchPage(ttk.Frame):
         self.loading_points.place_forget()
 
     def handle_remember_database(self):
+        '''Save a copy of the database that the user want to remember in the remembered_database folder'''
         #recovery database info
         database_path = self.input_database_path.get()
         database_name = database_path.split("/")[-1]
         #read database data
         with open(database_path, "r") as file:
             database_data = json.load(file)
+        #check if destiny folder exists
+        if folder_exists("./remembered_database") == False:    
+            os.mkdir("./remembered_database")     
         #remove old database
         clean_folder(DATABASE_DIRECTORY)    
         #save database copy    
         with open(f"{DATABASE_DIRECTORY}/{database_name}", "w") as f:
-            json.dump(database_data, f)     
+            json.dump(database_data, f)   
     
     def recovery_remembered_database(self):
         try:
