@@ -1,4 +1,4 @@
-**Visuales Scrapper**
+## Visuales Scrapper
 Visuales url: visuales.uclv.cu
 
 With this program we can:
