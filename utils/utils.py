@@ -26,13 +26,31 @@ def folder_exists(path):
         os.listdir(path)
         return True
     except:
-        return False   
+        return False 
+
+def file_exists(path):
+    try:
+        if os.path.exists(path):
+            return True
+        else:
+            return False
+    except:
+        return False          
 
 def recovery_idm_path():
-    with open("./idm_path.txt", "r") as idm_path_file:
-        # Read the first line and delete the blank spaces
-        idm_path = idm_path_file.readline().strip()  
-        return idm_path      
+    try:
+        #check if the txt file exists
+        if file_exists("./idm_path.txt"):
+            with open("./idm_path.txt", "r") as idm_path_file:
+                # Read the first line and delete the blank spaces
+                idm_path = idm_path_file.readline().strip()  
+                return idm_path   
+        else:
+            #create txt file with the idm path
+            update_idm_path("C:/Program Files (x86)/Internet Download Manager/IDMan.exe")   
+            return "C:/Program Files (x86)/Internet Download Manager/IDMan.exe"
+    except:
+        return ""      
 
 def update_idm_path(new_path):
     with open("./idm_path.txt", "w") as idm_path_file:
