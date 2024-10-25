@@ -27,16 +27,6 @@ class ScrollableFrame(ttk.Frame):
         # Configurar la expansión del canvas
         self.grid_rowconfigure(0, weight=1)
         self.grid_columnconfigure(0, weight=1)
-        
-        # Vincular el evento de desplazamiento del mouse al canvas
-        self.canvas.bind_all("<MouseWheel>", self._on_mousewheel)
-        self.canvas.bind_all("<Shift-MouseWheel>", self._on_shift_mousewheel)
-
-    def _on_mousewheel(self, event):
-        self.canvas.yview_scroll(int(-1*(event.delta/120)), "units")
-
-    def _on_shift_mousewheel(self, event):
-        self.canvas.xview_scroll(int(-1*(event.delta/120)), "units")
 
     def update_scrollregion(self):
         self.scrollable_frame.update_idletasks()
