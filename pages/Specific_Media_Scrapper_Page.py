@@ -109,7 +109,7 @@ class SpecificMediaScrapperPage(ttk.Frame):
                 self.check_if_stop,
                 verify = self.use_https_verification.get() == 1
                 )}
-
+            
             #if the program stoped, don't show any message'
             if self.check_if_stop():
                 return
