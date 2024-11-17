@@ -28,6 +28,13 @@ class ScrollableFrame(ttk.Frame):
         self.grid_rowconfigure(0, weight=1)
         self.grid_columnconfigure(0, weight=1)
 
+        # Agregar el binding para la rueda del ratón
+        self.canvas.bind("<MouseWheel>", self._on_mousewheel)
+
     def update_scrollregion(self):
         self.scrollable_frame.update_idletasks()
         self.canvas.configure(scrollregion=self.canvas.bbox("all"))
+
+    def _on_mousewheel(self, event):
+        self.canvas.yview_scroll(int(-1*(event.delta/120)), "units")
+        
