@@ -101,6 +101,7 @@ class BuildDatabasePage(ttk.Frame):
             self.disable_buttons()
             self.show_loading_status()
             t = threading.Thread(target=self.generate_database, args=[url_carpeta_visuales, ruta_destino, nombre_db])
+            t.daemon = True
             t.start()   
     
     def generate_database(self, url_carpeta_visuales, ruta_destino, nombre_db):

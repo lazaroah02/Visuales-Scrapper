@@ -91,6 +91,7 @@ class SpecificMediaScrapperPage(ttk.Frame):
             messagebox.showinfo("!","No pueden haber campos vacios")
         else:
             t = threading.Thread(target=self.scrapping_serie, args=[url_serie])
+            t.daemon = True
             t.start()   
     
     def scrapping_serie(self, url_serie):
@@ -421,10 +422,14 @@ class SpecificMediaScrapperPage(ttk.Frame):
             self.enable_buttons()
     
     def start_exporting_to_idm(self):
-        threading.Thread(target=self.export_searching_results_to_idm).start()
+        t = threading.Thread(target=self.export_searching_results_to_idm)
+        t.daemon = True
+        t.start()
     
     def start_exporting_as_files(self):    
-        threading.Thread(target=self.export_searching_results_as_files).start()
+        t = threading.Thread(target=self.export_searching_results_as_files)
+        t.daemon = True
+        t.start()
     
     def check_if_stop(self):
         """Function to check if the user closed or stoped the program"""

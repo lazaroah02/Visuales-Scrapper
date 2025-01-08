@@ -112,6 +112,7 @@ class SearchPage(ttk.Frame):
                 self.handle_remember_database() 
             # Start the searching
             t = threading.Thread(target=self.search, args=[search_value, database_path])
+            t.daemon = True
             t.start()   
     
     def search(self, search_value, database_path):
@@ -459,10 +460,14 @@ class SearchPage(ttk.Frame):
             self.enable_buttons()
     
     def start_exporting_to_idm(self):
-        threading.Thread(target=self.export_searching_results_to_idm).start()
+        t = threading.Thread(target=self.export_searching_results_to_idm)
+        t.daemon = True
+        t.start()
     
     def start_exporting_as_files(self):    
-        threading.Thread(target=self.export_searching_results_as_files).start()
+        t = threading.Thread(target=self.export_searching_results_as_files)
+        t.daemon = True
+        t.start()
     
     def check_if_stop(self):
         """Function to check if the user closed or stoped the program"""
