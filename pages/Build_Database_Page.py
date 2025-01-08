@@ -59,9 +59,9 @@ class BuildDatabasePage(ttk.Frame):
 
         # Label to show the loading status
         self.label_loading = Label(self, text="Generando Base de Datos")
-        self.label_loading.config(fg="blue", font=("Cabin", 15,), width=20)
+        self.label_loading.config(fg="blue", font=("Cabin", 15,), width=22)
 
-        self.x_coordenate_of_loading_points = 375
+        self.x_coordenate_of_loading_points = 390
         self.after_function_id = None
         self.loading_points = Label(self, text=". . .")
         self.loading_points.config(fg="blue", font=("Courier", 15, "italic"))
@@ -119,7 +119,7 @@ class BuildDatabasePage(ttk.Frame):
             with open(f"{ruta_destino}/{nombre_db}.json", "w") as file:
                 json.dump(data, file) 
             if data != {}:
-                messagebox.showinfo("!","Operacion finalizada con éxito")
+                messagebox.showinfo("!","Operacion finalizada")
             else:
                 messagebox.showinfo(
                     "!", 
@@ -149,11 +149,11 @@ class BuildDatabasePage(ttk.Frame):
         #if the program stoped, don't show loading status
         if self.check_if_program_stoped():
             return
-        if self.loading_points.winfo_x() >= 390:
+        if self.loading_points.winfo_x() >= 405:
             self.loading_points.place(x=self.x_coordenate_of_loading_points)
             frame = 0
         # Update the position of the loading point
-        self.label_loading.place(x=150, y=235)     
+        self.label_loading.place(x=150, y=238)     
         self.loading_points.place(x=(self.x_coordenate_of_loading_points + frame), y=240)
         # Schedule the next frame to be displayed after 250 milliseconds
         self.after_function_id = self.after(250, self.show_loading_status, frame + 5)
