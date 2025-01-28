@@ -34,18 +34,10 @@ def scrape_visual_folders_recursively(parent_folder_url, log_calback_function,  
         res = requests.get(parent_folder_url, verify=verify)
         
         # Get media links from the HTML content
-        media_links = get_links_of_html(str(res.content))
-
-        # Parse the HTML content using BeautifulSoup
-        soup = BeautifulSoup(res.content, features="lxml")
-        tags = soup("a")
-        folders_links = []
+        media_links = get_media_links_of_html(str(res.content))
         
-        # Extract links from the HTML content, excluding media files
-        for tag in tags[5:len(tags)]:
-            link = tag.get('href')
-            if link and not any(link.endswith(ext) or link.endswith(ext.upper()) for ext in FILE_EXTENSIONS):
-                folders_links.append(link)
+        # Get folder links from the HTML content
+        folders_links = get_folder_links_of_html(str(res.content))
 
         # Use ThreadPoolExecutor to scrape folders concurrently
         with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
@@ -73,7 +65,23 @@ def scrape_visual_folders_recursively(parent_folder_url, log_calback_function,  
         log_calback_function(f"Error scrapping: {parent_folder_url} || {e}")
         return "Error Getting this folder info"
 
-def get_links_of_html(html):
+def get_folder_links_of_html(html):
+    # Parse the HTML content using BeautifulSoup
+    soup = BeautifulSoup(html, features="lxml")
+    tags = soup("a")
+    folders_links = []
+    
+    # Extract links from the HTML content, excluding media files
+    for tag in tags[5:len(tags)]:
+        link = tag.get('href')
+        if link == "?C=M&O=D" or link == "../" or link == 'http://emby.uclv.cu':
+            continue
+        if link and not any(link.endswith(ext) or link.endswith(ext.upper()) for ext in FILE_EXTENSIONS):
+            folders_links.append(link)
+
+    return folders_links        
+
+def get_media_links_of_html(html):
     """
     Extract links of the episodes from the given HTML content.
 
@@ -86,8 +94,10 @@ def get_links_of_html(html):
     soup = BeautifulSoup(html, features="lxml")
     tags = soup("a")
     links = []
-    for tag in tags:
+    for tag in tags[5:len(tags)]:
         link = tag.get("href")
+        if link == "?C=M&O=D" or link == "../" or link == 'http://emby.uclv.cu':
+            continue
         if any(link.endswith(ext) or link.endswith(ext.upper()) for ext in ALLOWED_FORMATS):
             if str(link).find("\\") != -1:
                 link = str(link).replace("\\","")
