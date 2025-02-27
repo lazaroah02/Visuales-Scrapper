@@ -94,7 +94,7 @@ def get_media_links_of_html(html):
     soup = BeautifulSoup(html, features="lxml")
     tags = soup("a")
     links = []
-    for tag in tags[5:len(tags)]:
+    for tag in tags:
         link = tag.get("href")
         if link == "?C=M&O=D" or link == "../" or link == 'http://emby.uclv.cu':
             continue
