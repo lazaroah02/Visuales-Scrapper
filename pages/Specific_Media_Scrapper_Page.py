@@ -373,6 +373,9 @@ class SpecificMediaScrapperPage(ttk.Frame):
             if not carpeta_destino:
                 return
             
+            #show open idm before exportation message
+            messagebox.showinfo("Warning!", "Please, open IDM to start the exportation")
+
             self.label_loading.config(text="Exportando")
             self.disable_buttons()
             self.show_loading_status()
